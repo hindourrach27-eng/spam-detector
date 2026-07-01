@@ -16,7 +16,10 @@
             </ol>
         </div>
         <div class="col-md-7 col-12 align-self-center text-md-right">
-            <a href="{{ url_for('home_blueprint.simulateur_page') }}" class="btn btn-info btn-rounded">Nouvelle simulation</a>
+            <a href="{{ url_for('home_blueprint.simulateur_page') }}" class="btn btn-info btn-rounded mr-2">Nouvelle simulation</a>
+            {% if simulations|length > 0 %}
+            <button class="btn btn-danger btn-rounded" id="viderHistoriqueBtn">Vider l'historique</button>
+            {% endif %}
         </div>
     </div>
 
@@ -105,4 +108,28 @@
 
 {% endblock content %}
 
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+<script>
+{% if simulations|length > 0 %}
+document.getElementById('viderHistoriqueBtn').addEventListener('click', function() {
+    if (confirm('Etes-vous sur de vouloir supprimer tout l\'historique ? Cette action est irreversible.')) {
+        fetch('{{ url_for("home_blueprint.simulateur_historique_vider") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Erreur lors de la suppression.');
+            }
+        })
+        .catch(error => {
+            alert('Erreur : ' + error.message);
+        });
+    }
+});
+{% endif %}
+</script>
+{% endblock javascripts %}

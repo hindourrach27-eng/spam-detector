@@ -170,8 +170,8 @@
                             <div class="card-body text-center">
                                 <h6 class="text-muted">SPAM vs LEGITIME</h6>
                                 <h4 class="mb-0">
-                                    <span class="badge badge-danger">{{ stats_simulations.repartition_verdict.spam or 0 }} spam</span>
-                                    <span class="badge badge-success">{{ stats_simulations.repartition_verdict.legitime or 0 }} legitime</span>
+                                    <span class="badge badge-danger">{{ stats_simulations.repartition_verdict.get('spam', 0) }} spam</span>
+                                    <span class="badge badge-success">{{ stats_simulations.repartition_verdict.get('legitime', 0) }} legitime</span>
                                 </h4>
                             </div>
                         </div>
@@ -183,13 +183,13 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Repartition SPAM / LEGITIME</h5>
-                                {% set total_verdict = (stats_simulations.repartition_verdict.spam or 0) + (stats_simulations.repartition_verdict.legitime or 0) %}
-                                {% set pct_spam = (stats_simulations.repartition_verdict.spam / total_verdict * 100) if total_verdict > 0 else 0 %}
-                                {% set pct_legitime = (stats_simulations.repartition_verdict.legitime / total_verdict * 100) if total_verdict > 0 else 0 %}
+                                {% set total_verdict = stats_simulations.repartition_verdict.get('spam', 0) + stats_simulations.repartition_verdict.get('legitime', 0) %}
+                                {% set pct_spam = (stats_simulations.repartition_verdict.get('spam', 0) / total_verdict * 100) if total_verdict > 0 else 0 %}
+                                {% set pct_legitime = (stats_simulations.repartition_verdict.get('legitime', 0) / total_verdict * 100) if total_verdict > 0 else 0 %}
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between mb-1">
                                         <span>SPAM</span>
-                                        <span class="text-muted">{{ stats_simulations.repartition_verdict.spam or 0 }} ({{ "%.1f"|format(pct_spam) }}%)</span>
+                                        <span class="text-muted">{{ stats_simulations.repartition_verdict.get('spam', 0) }} ({{ "%.1f"|format(pct_spam) }}%)</span>
                                     </div>
                                     <div class="progress" style="height: 18px;">
                                         <div class="progress-bar bg-danger" role="progressbar" style="width: {{ pct_spam }}%;"></div>
@@ -198,7 +198,7 @@
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between mb-1">
                                         <span>LEGITIME</span>
-                                        <span class="text-muted">{{ stats_simulations.repartition_verdict.legitime or 0 }} ({{ "%.1f"|format(pct_legitime) }}%)</span>
+                                        <span class="text-muted">{{ stats_simulations.repartition_verdict.get('legitime', 0) }} ({{ "%.1f"|format(pct_legitime) }}%)</span>
                                     </div>
                                     <div class="progress" style="height: 18px;">
                                         <div class="progress-bar bg-success" role="progressbar" style="width: {{ pct_legitime }}%;"></div>

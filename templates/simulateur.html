@@ -19,156 +19,157 @@
 
     <div class="container-fluid">
 
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Tester une offre avant envoi</h5>
-                        <p class="text-muted">
-                            Entrez le domaine d'expedition prevu et le contenu de votre offre.
-                            L'IA donne un diagnostic en direct (verdict, score, recommandations),
-                            sans avoir besoin d'envoyer reellement l'email.
-                        </p>
+        <!-- FORMULAIRE -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Tester une offre avant envoi</h5>
+                <p class="text-muted">
+                    Entrez le domaine d'expedition prevu et le contenu de votre offre.
+                    L'IA donne un diagnostic en direct (verdict, score, recommandations),
+                    sans avoir besoin d'envoyer reellement l'email.
+                </p>
 
-                        <form id="simulateurForm">
-                            <div class="form-group">
-                                <label for="domaine"><strong>Domaine d'expedition</strong> <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="domaine" placeholder="ex: monentreprise.com" required>
+                <form id="simulateurForm">
+                    <div class="form-group">
+                        <label for="domaine"><strong>Domaine d'expedition</strong> <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="domaine" placeholder="ex: monentreprise.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nom_affiche"><strong>Nom affiche (From)</strong> (optionnel)</label>
+                        <input type="text" class="form-control" id="nom_affiche" placeholder="ex: PayPal, Mon Entreprise">
+                        <small class="form-text text-muted">
+                            Le nom qui apparaitra dans la boite de reception du destinataire.
+                            Si laisse vide, le domaine sera utilise comme nom affiche.
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sujet"><strong>Sujet de l'email</strong> (optionnel)</label>
+                        <input type="text" class="form-control" id="sujet" placeholder="ex: Offre speciale -50%">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description_offre"><strong>Description de l'offre / contenu de l'email</strong> <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="description_offre" rows="5" placeholder="Decrivez le contenu de votre campagne..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="code_html"><strong>Code source HTML de l'offre</strong> <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="code_html" rows="6" placeholder="Collez ici le code HTML complet de votre email..." required style="font-family: monospace; font-size: 0.85rem;"></textarea>
+                        <small class="form-text text-muted">
+                            Permet de verifier que le code ne contient pas de texte cache
+                            (technique parfois presente par erreur dans des templates).
+                        </small>
+                    </div>
+
+                    <label class="d-block mb-2"><strong>Authentification simulee</strong></label>
+                    <div class="auth-grid mb-3">
+                        <div class="card auth-toggle-card" id="card_spf">
+                            <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                                <span>SPF configure</span>
+                                <label class="mon-switch">
+                                    <input type="checkbox" id="spf_ok">
+                                    <span class="slider"></span>
+                                </label>
                             </div>
-
-                            <div class="form-group">
-                                <label for="nom_affiche"><strong>Nom affiche (From)</strong> (optionnel)</label>
-                                <input type="text" class="form-control" id="nom_affiche" placeholder="ex: PayPal, Mon Entreprise">
-                                <small class="form-text text-muted">
-                                    Le nom qui apparaitra dans la boite de reception du destinataire.
-                                    Si laisse vide, le domaine sera utilise comme nom affiche.
-                                </small>
+                        </div>
+                        <div class="card auth-toggle-card" id="card_dkim">
+                            <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                                <span>DKIM configure</span>
+                                <label class="mon-switch">
+                                    <input type="checkbox" id="dkim_ok">
+                                    <span class="slider"></span>
+                                </label>
                             </div>
-
-                            <div class="form-group">
-                                <label for="sujet"><strong>Sujet de l'email</strong> (optionnel)</label>
-                                <input type="text" class="form-control" id="sujet" placeholder="ex: Offre speciale -50%">
+                        </div>
+                        <div class="card auth-toggle-card" id="card_dmarc">
+                            <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                                <span>DMARC configure</span>
+                                <label class="mon-switch">
+                                    <input type="checkbox" id="dmarc_ok">
+                                    <span class="slider"></span>
+                                </label>
                             </div>
-
-                            <div class="form-group">
-                                <label for="description_offre"><strong>Description de l'offre / contenu de l'email</strong> <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="description_offre" rows="5" placeholder="Decrivez le contenu de votre campagne..." required></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="code_html"><strong>Code source HTML de l'offre</strong> <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="code_html" rows="6" placeholder="Collez ici le code HTML complet de votre email (View Source ou export depuis votre outil emailing)..." required style="font-family: monospace; font-size: 0.85rem;"></textarea>
-                                <small class="form-text text-muted">
-                                    Permet de verifier que le code ne contient pas de texte cache
-                                    (technique parfois presente par erreur dans des templates).
-                                </small>
-                            </div>
-
-                            <label class="d-block mb-2"><strong>Authentification simulee</strong></label>
-                            <div class="auth-grid mb-3">
-                                <div class="card auth-toggle-card" id="card_spf">
-                                    <div class="card-body py-3 d-flex justify-content-between align-items-center">
-                                        <span>SPF configure</span>
-                                        <label class="mon-switch">
-                                            <input type="checkbox" id="spf_ok">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="card auth-toggle-card" id="card_dkim">
-                                    <div class="card-body py-3 d-flex justify-content-between align-items-center">
-                                        <span>DKIM configure</span>
-                                        <label class="mon-switch">
-                                            <input type="checkbox" id="dkim_ok">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="card auth-toggle-card" id="card_dmarc">
-                                    <div class="card-body py-3 d-flex justify-content-between align-items-center">
-                                        <span>DMARC configure</span>
-                                        <label class="mon-switch">
-                                            <input type="checkbox" id="dmarc_ok">
-                                            <span class="slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-info btn-rounded" id="analyserBtn">
-                                Analyser avec l'IA
-                            </button>
-                        </form>
-
-                        <div class="text-center mt-4" id="loadingSpinner" style="display: none;">
-                            <div class="spinner-border text-primary" role="status"></div>
-                            <p class="mt-2 text-muted">
-                                Analyse en cours... cela peut prendre jusqu'a 10 minutes si le modele
-                                doit se recharger en memoire. Merci de patienter.
-                            </p>
                         </div>
                     </div>
+
+                    <button type="submit" class="btn btn-info btn-rounded" id="analyserBtn">
+                        Analyser avec l'IA
+                    </button>
+                </form>
+
+                <div class="text-center mt-4" id="loadingSpinner" style="display: none;">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">
+                        Analyse en cours... cela peut prendre jusqu'a 10 minutes si le modele
+                        doit se recharger en memoire. Merci de patienter.
+                    </p>
                 </div>
             </div>
         </div>
 
-        <div class="row" id="htmlCheckWrapper" style="display: none;">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Verification technique du HTML</h5>
-                        <p class="text-muted" style="font-size: 0.85rem;">
-                            Verification deterministe (sans IA) du code source, pour detecter
-                            d'eventuelles techniques de texte cache.
-                        </p>
-                        <div id="htmlCheckResult"></div>
-                    </div>
+        <!-- VERIFICATION HTML -->
+        <div id="htmlCheckWrapper" style="display: none;">
+            <div class="card" style="border: 2px solid #26c6da;">
+                <div class="card-body">
+                    <h5 class="card-title" style="color: #26c6da;">Verification technique du HTML</h5>
+                    <p class="text-muted" style="font-size: 0.85rem;">
+                        Verification deterministe (sans IA) du code source, pour detecter
+                        d'eventuelles techniques de texte cache.
+                    </p>
+                    <div id="htmlCheckResult"></div>
                 </div>
             </div>
         </div>
 
-        <div class="row" id="resultatWrapper" style="display: none;">
-            <div class="col-md-3 col-6">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h6 class="text-muted">Score de spam</h6>
-                        <h2 id="resScore" class="text-success">-</h2>
-                        <p id="resScoreExplication" class="text-muted mb-0" style="font-size: 0.8rem;"></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <h6 class="text-muted">Verdict</h6>
-                        <span id="resVerdict" class="badge" style="font-size: 1.1rem;">-</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="text-muted">Labels detectes</h6>
-                        <div id="resLabels">-</div>
-                    </div>
-                </div>
-            </div>
+        <!-- RESULTATS -->
+        <div id="resultatWrapper" style="display: none;">
+            <div class="card" style="border: 2px solid #fb9678;">
+                <div class="card-body">
 
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Elements suspects</h5>
-                        <ul id="resElements" class="mb-0"></ul>
-                    </div>
-                </div>
-            </div>
+                    <h5 class="mb-3" style="color: #fb9678;">Resultats du diagnostic</h5>
 
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Recommandation</h5>
-                        <p id="resRecommendation" class="mb-0">-</p>
+                    <!-- Score + Verdict + Labels -->
+                    <div class="row">
+                        <div class="col-md-4 col-12 text-center mb-3">
+                            <h6 class="text-muted">Score de spam</h6>
+                            <h2 id="resScore">-</h2>
+                            <p id="resScoreExplication" class="text-muted mb-0" style="font-size: 0.8rem;"></p>
+                        </div>
+                        <div class="col-md-4 col-12 text-center mb-3">
+                            <h6 class="text-muted">Verdict</h6>
+                            <span id="resVerdict" class="badge" style="font-size: 1.1rem;">-</span>
+                        </div>
+                        <div class="col-md-4 col-12 text-center mb-3">
+                            <h6 class="text-muted">Labels detectes</h6>
+                            <div id="resLabels">-</div>
+                        </div>
                     </div>
+
+                    <hr>
+
+                    <!-- Elements suspects + Recommandation -->
+                    <div class="row">
+                        <div class="col-md-6 col-12">
+                            <h6 class="text-muted">Elements suspects</h6>
+                            <ul id="resElements" class="mb-0"></ul>
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <h6 class="text-muted">Recommandation</h6>
+                            <p id="resRecommendation" class="mb-0">-</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Bouton rapport -->
+                    <div id="rapportWrapper" style="display: none;" class="text-center">
+                        <button class="btn btn-success btn-rounded" id="telechargerRapportBtn">
+                            Telecharger le rapport PDF
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -246,6 +247,7 @@ const analyserBtn = document.getElementById('analyserBtn');
 const loadingSpinner = document.getElementById('loadingSpinner');
 const resultatWrapper = document.getElementById('resultatWrapper');
 const htmlCheckWrapper = document.getElementById('htmlCheckWrapper');
+const rapportWrapper = document.getElementById('rapportWrapper');
 
 ['spf', 'dkim', 'dmarc'].forEach(function (champ) {
     const input = document.getElementById(champ + '_ok');
@@ -276,6 +278,7 @@ simulateurForm.addEventListener('submit', async (e) => {
     loadingSpinner.style.display = 'block';
     resultatWrapper.style.display = 'none';
     htmlCheckWrapper.style.display = 'none';
+    rapportWrapper.style.display = 'none';
 
     try {
         const response = await fetch('{{ url_for("home_blueprint.simulateur_analyser") }}', {
@@ -288,7 +291,7 @@ simulateurForm.addEventListener('submit', async (e) => {
 
         if (response.ok && data.success) {
             afficherVerificationHtml(data.problemes_html || []);
-            afficherResultat(data.resultat);
+            afficherResultat(data.resultat, domaine, nom_affiche, sujet, description_offre, spf_ok, dkim_ok, dmarc_ok);
             toastr.success('Analyse terminee');
         } else {
             toastr.error(data.error || 'Erreur inconnue');
@@ -305,21 +308,21 @@ function afficherVerificationHtml(problemes) {
     const htmlCheckResult = document.getElementById('htmlCheckResult');
 
     if (problemes.length === 0) {
-        htmlCheckResult.innerHTML = '<div class="alert alert-success mb-0">✅ Aucune technique de texte cache detectee dans le code HTML.</div>';
+        htmlCheckResult.innerHTML = '<div class="alert alert-success mb-0">Aucune technique de texte cache detectee dans le code HTML.</div>';
     } else {
         const liste = problemes.map(p => `<li>${p}</li>`).join('');
         htmlCheckResult.innerHTML = `
             <div class="alert alert-danger mb-0">
-                ⚠️ ${problemes.length} probleme(s) detecte(s) dans le code HTML :
+                ${problemes.length} probleme(s) detecte(s) dans le code HTML :
                 <ul class="mb-0 mt-2">${liste}</ul>
             </div>
         `;
     }
 
-    htmlCheckWrapper.style.display = 'flex';
+    htmlCheckWrapper.style.display = 'block';
 }
 
-function afficherResultat(resultat) {
+function afficherResultat(resultat, domaine, nom_affiche, sujet, description_offre, spf_ok, dkim_ok, dmarc_ok) {
     const score = resultat.score ?? 0;
     const verdict = resultat.verdict ?? 'inconnu';
 
@@ -347,7 +350,56 @@ function afficherResultat(resultat) {
 
     document.getElementById('resRecommendation').textContent = resultat.recommendation || 'Aucune recommandation particuliere.';
 
-    resultatWrapper.style.display = 'flex';
+    resultatWrapper.style.display = 'block';
+
+    // Stocker les donnees pour la generation du rapport PDF
+    window.dernierResultat = {
+        domaine: domaine,
+        nom_affiche: nom_affiche,
+        sujet: sujet,
+        description_offre: description_offre,
+        spf_ok: spf_ok,
+        dkim_ok: dkim_ok,
+        dmarc_ok: dmarc_ok,
+        score: resultat.score,
+        verdict: resultat.verdict,
+        score_explication: resultat.score_explication,
+        label_phishing: resultat.label_phishing,
+        label_spoofing: resultat.label_spoofing,
+        label_scam: resultat.label_scam,
+        label_bulk: resultat.label_bulk,
+        harmful_elements: (resultat.harmful_elements || []).join(', '),
+        recommendation: resultat.recommendation
+    };
+
+    // Afficher le bouton de telechargement du rapport
+    rapportWrapper.style.display = 'block';
 }
+
+document.getElementById('telechargerRapportBtn').addEventListener('click', async () => {
+    try {
+        const response = await fetch('{{ url_for("home_blueprint.simulateur_rapport") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ simulation_data: window.dernierResultat })
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'rapport_diagnostic_spam.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } else {
+            toastr.error('Erreur lors de la generation du rapport');
+        }
+    } catch (error) {
+        toastr.error('Erreur : ' + error.message);
+    }
+});
 </script>
 {% endblock javascripts %}

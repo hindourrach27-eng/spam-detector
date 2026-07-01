@@ -96,6 +96,12 @@
 
             </div>
         </div>
+        <div class="text-center mt-3 mb-3">
+               <a href="{{ url_for('home_blueprint.simulateur_historique_rapport', simulation_id=simulation.id) }}"
+                class="btn btn-success btn-rounded">
+                Telecharger le rapport PDF
+               </a>
+        </div>
 
         {% include 'includes/footer.html' %}
 

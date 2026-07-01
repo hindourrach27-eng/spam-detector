@@ -3,7 +3,8 @@ app/home/routes.py — Routes de l'application (diagnostic spam)
 """
 
 import threading
-from flask import session, redirect, url_for, request, jsonify, render_template
+import os
+from flask import session, redirect, url_for, request, jsonify, render_template, send_file
 from app.home import home_blueprint
 from clean_text import build_model_input_from_form, analyze_with_ollama, detecter_texte_cache_html
 from gmail_utils import (
@@ -17,10 +18,10 @@ from database import (
     get_user_token, save_email, get_user_emails, count_user_emails,
     get_email_by_id, save_analyse , get_all_emails_ids,
     save_simulation, get_simulations, get_simulation_by_id,
-    get_stats_heuristique, get_stats_simulations
+    get_stats_heuristique, get_stats_simulations ,vider_simulations
 )
 from spam_analyzer import SpamAnalyzer
-
+from rapport_pdf import generer_rapport_pdf
 
 # Etat de la collecte en masse (partage entre les requetes)
 collection_status = {
@@ -169,61 +170,6 @@ def emails_data():
     except Exception as e:
         print(f"❌ Erreur emails_data : {e}")
         return jsonify({"error": str(e)}), 500
-
-
-
-# @home_blueprint.route('/emails')
-# def emails_page():
-#     if 'user_email' not in session:
-#         return redirect(url_for('home_blueprint.login_page'))
-#
-#     try:
-#         creds_dict = session.get('user_credentials')
-#         creds = deserialize_credentials(creds_dict)
-#
-#         if not creds:
-#             return "❌ Credentials invalides", 500
-#
-#         service = get_gmail_service(creds)
-#         if not service:
-#             return "❌ Impossible de se connecter à Gmail", 500
-#
-#         labels = fetch_gmail_labels(service)
-#         emails_to_display = {}
-#
-#         if 'INBOX' in labels:
-#             inbox_msg_ids = fetch_emails_list(service, labels['INBOX'], max_results=20)
-#             inbox_emails = []
-#             for msg_id in inbox_msg_ids:
-#                 email_data = extract_email_data(service, msg_id, 'INBOX')
-#                 if email_data:
-#                     inbox_emails.append(email_data)
-#             emails_to_display['INBOX'] = inbox_emails
-#
-#         if 'SPAM' in labels:
-#             spam_msg_ids = fetch_emails_list(service, labels['SPAM'], max_results=20)
-#             spam_emails = []
-#             for msg_id in spam_msg_ids:
-#                 email_data = extract_email_data(service, msg_id, 'SPAM')
-#                 if email_data:
-#                     spam_emails.append(email_data)
-#             emails_to_display['SPAM'] = spam_emails
-#
-#         collected = get_user_emails(session['user_id'])
-#         collected_msg_ids = {email['msg_id'] for email in collected}
-#         print("emails_to_display ",emails_to_display)
-#         return render_template(
-#             'emails.html',
-#             user_email=session['user_email'],
-#             # emails_by_label=emails_to_display,
-#             collected_count=len(collected),
-#             total_available=sum(len(v) for v in emails_to_display.values()),
-#             collected_msg_ids=collected_msg_ids
-#         )
-#
-#     except Exception as e:
-#         print(f"❌ Erreur emails_page : {e}")
-#         return f"❌ Erreur : {e}", 500
 
 @home_blueprint.route('/collect', methods=['POST'])
 def collect_emails():
@@ -705,3 +651,92 @@ def statistiques_page():
         stats_heuristique=stats_heuristique,
         stats_simulations=stats_simulations
     )
+
+@home_blueprint.route('/simulateur/rapport', methods=['POST'])
+def simulateur_rapport():
+    """
+    Genere un rapport PDF a partir des donnees d'une analyse fraiche
+    (passees en JSON depuis la page simulateur), l'envoie au navigateur
+    puis le supprime du serveur immediatement apres.
+    """
+    if 'user_email' not in session:
+        return jsonify({'error': 'Non authentifie'}), 401
+
+    try:
+        data = request.get_json()
+        simulation_data = data.get('simulation_data', {})
+
+        if not simulation_data:
+            return jsonify({'error': 'Donnees de simulation manquantes'}), 400
+
+        chemin_pdf = generer_rapport_pdf(simulation_data)
+
+        return send_file(
+            chemin_pdf,
+            as_attachment=True,
+            download_name='rapport_diagnostic_spam.pdf',
+            mimetype='application/pdf'
+        )
+
+    except Exception as e:
+        print(f"❌ Erreur simulateur_rapport : {e}")
+        return jsonify({'error': str(e)}), 500
+
+    finally:
+        # Suppression du fichier temporaire apres envoi
+        try:
+            if 'chemin_pdf' in locals() and os.path.exists(chemin_pdf):
+                os.remove(chemin_pdf)
+        except Exception:
+            pass
+
+
+@home_blueprint.route('/simulateur/historique/<int:simulation_id>/rapport')
+def simulateur_historique_rapport(simulation_id):
+    """
+    Genere un rapport PDF a partir d'une simulation passee (depuis l'historique),
+    l'envoie au navigateur puis le supprime du serveur immediatement apres.
+    """
+    if 'user_email' not in session:
+        return redirect(url_for('home_blueprint.login_page'))
+
+    try:
+        simulation = get_simulation_by_id(simulation_id, session['user_id'])
+
+        if not simulation:
+            return "Simulation introuvable", 404
+
+        chemin_pdf = generer_rapport_pdf(simulation)
+
+        return send_file(
+            chemin_pdf,
+            as_attachment=True,
+            download_name=f'rapport_diagnostic_{simulation_id}.pdf',
+            mimetype='application/pdf'
+        )
+
+    except Exception as e:
+        print(f"❌ Erreur simulateur_historique_rapport : {e}")
+        return f"Erreur lors de la generation du rapport : {e}", 500
+
+    finally:
+        # Suppression du fichier temporaire apres envoi
+        try:
+            if 'chemin_pdf' in locals() and os.path.exists(chemin_pdf):
+                os.remove(chemin_pdf)
+        except Exception:
+            pass
+
+
+@home_blueprint.route('/simulateur/historique/vider', methods=['POST'])
+def simulateur_historique_vider():
+    """Supprime toutes les simulations de l'utilisateur connecte."""
+    if 'user_email' not in session:
+        return jsonify({'error': 'Non authentifie'}), 401
+
+    try:
+        vider_simulations(session['user_id'])
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        print(f"❌ Erreur simulateur_historique_vider : {e}")
+        return jsonify({'error': str(e)}), 500

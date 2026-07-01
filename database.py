@@ -731,3 +731,19 @@ def get_stats_simulations(id_user):
         'total': total,
         'repartition_labels': repartition_labels,
     }
+
+
+def vider_simulations(id_user):
+    """Supprime toutes les simulations d'un utilisateur."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    try:
+        cursor.execute('DELETE FROM simulations WHERE id_user = ?', (id_user,))
+        conn.commit()
+        success = True
+    except Exception as e:
+        print(f"❌ Erreur vider_simulations : {e}")
+        success = False
+    finally:
+        conn.close()
+    return success
