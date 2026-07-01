@@ -1,0 +1,107 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Detail simulation {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="page-wrapper">
+    <div class="row page-titles">
+        <div class="col-md-12 col-12 align-self-center">
+            <h3 class="text-themecolor mb-0">Detail de la simulation</h3>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('home_blueprint.simulateur_historique') }}">Historique</a></li>
+                <li class="breadcrumb-item active">Detail</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="card mb-0" style="border: 2px solid #26c6da;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="text-muted">Offre testee</h6>
+                        <p class="mb-1"><strong>Domaine :</strong> {{ simulation.domaine }}</p>
+                        <p class="mb-1"><strong>Nom affiche :</strong> {{ simulation.nom_affiche or '-' }}</p>
+                        <p class="mb-1"><strong>Sujet :</strong> {{ simulation.sujet or '-' }}</p>
+                        <p class="mb-1"><strong>Contenu :</strong> {{ simulation.description_offre }}</p>
+                        <p class="mb-0">
+                            <strong>Authentification simulee :</strong>
+                            SPF {{ 'configure' if simulation.spf_ok else 'non configure' }},
+                            DKIM {{ 'configure' if simulation.dkim_ok else 'non configure' }},
+                            DMARC {{ 'configure' if simulation.dmarc_ok else 'non configure' }}
+                        </p>
+                        <p class="text-muted mt-2 mb-0" style="font-size: 0.85rem;">
+                            Teste le {{ simulation.date_creation }}
+                        </p>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-4 col-12 text-center mb-3">
+                        <h6 class="text-muted">Score de spam</h6>
+                        {% if simulation.score is not none and simulation.score >= 70 %}
+                        <h2 class="text-danger">{{ simulation.score }}/100</h2>
+                        {% elif simulation.score is not none and simulation.score >= 40 %}
+                        <h2 class="text-warning">{{ simulation.score }}/100</h2>
+                        {% else %}
+                        <h2 class="text-success">{{ simulation.score }}/100</h2>
+                        {% endif %}
+                        <p class="text-muted mb-0" style="font-size: 0.8rem;">{{ simulation.score_explication or '' }}</p>
+                    </div>
+                    <div class="col-md-4 col-12 text-center mb-3">
+                        <h6 class="text-muted">Verdict</h6>
+                        {% if simulation.verdict == 'spam' %}
+                        <span class="badge badge-danger" style="font-size: 1.1rem;">SPAM</span>
+                        {% else %}
+                        <span class="badge badge-success" style="font-size: 1.1rem;">LEGITIME</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 col-12 text-center mb-3">
+                        <h6 class="text-muted">Labels detectes</h6>
+                        {% if simulation.label_phishing %}<span class="badge badge-danger mr-1">Phishing</span>{% endif %}
+                        {% if simulation.label_spoofing %}<span class="badge badge-warning mr-1">Spoofing</span>{% endif %}
+                        {% if simulation.label_scam %}<span class="badge badge-danger mr-1">Scam</span>{% endif %}
+                        {% if simulation.label_bulk %}<span class="badge badge-secondary mr-1">Bulk</span>{% endif %}
+                        {% if not simulation.label_phishing and not simulation.label_spoofing and not simulation.label_scam and not simulation.label_bulk %}
+                        <span class="badge badge-success">Aucun</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-6 col-12">
+                        <h6 class="text-muted">Elements suspects</h6>
+                        {% if simulation.harmful_elements %}
+                        <ul class="mb-0">
+                            {% for element in simulation.harmful_elements.split(', ') %}
+                            <li>{{ element }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-muted mb-0">Aucun element suspect detecte</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <h6 class="text-muted">Recommandation</h6>
+                        <p class="mb-0">{{ simulation.recommendation or 'Aucune recommandation particuliere.' }}</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        {% include 'includes/footer.html' %}
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}

@@ -1,0 +1,85 @@
+Tu es un expert en cybersecurite et en detection de spam/phishing.
+Voici quelques exemples d'emails deja diagnostiques, pour t'aider a comprendre le pattern attendu :
+
+--- Exemple ---
+IP: 209.85.220.69
+SPF: pass
+DKIM: pass
+DMARC: pass
+From: Google <google-noreply@google.com>
+Subject: New privacy settings for Search services
+
+Google logo 01020369191k@gmail.com Hello 복수, We're updating our settings to give you even more control over saved history and personalised recommendations across Google Search services, including Search, Maps, Shopping, Hotels, Flights, Translate and News. You'll see this change in your Google Account in the next few days. What's changing Previously, saving history and personalisation were managed by Web & App Activity. Going forwards, we're introducing two new settings to help you better tailor your experience: Search services history and Personalised Recommendations. These settings let you revisit your past searches and decide if you want your experience to be personalised. You can turn these settings on or off at any time. As people increasingly search in new ways, like searching a photo with Lens, Search services history now includes media from your interactions, which you can stop saving at any time. How this affects your account New history and personalisation settings: These new settings will reflect your most recent choices for Web & App Activity and Search personalisation settings. If these are currently on, these new settings will stay on. If they're off, the new settings will be off. After the transition, Web & App Activity and Search services settings will be separate, and changes to one won't affect the other. Auto-delete: Your prior choice from Web & App Activity for how long your history is saved will also apply to Search services history. As always, you can change how long history is saved, choose an auto-delete period and review or delete history manually at any time. Your media is saved when Search services history is on: Saved media includes your images, files, audio and video from your interactions with Search services to help improve your experience. For example, this lets you revisit your past visual searches with Lens or continue a Search Live conversation about a song that you heard. To support these types of interactive product experiences, Google will now save your media to your Search services history, applying robust privacy and security protections. Like your Search services history, your saved media is also used to develop and improve Google services and technologies, including AI models and safety measures. With this transition, if your Web & App Activity setting is currently turned on, this new Save media subsetting will also be turned on along with your Search services history. You can turn off your Save media subsetting at any time, and you can also delete individual pieces of media from your history. You can manage these preferences on your Search services history and Search services personalisation pages. Learn more about your settings © 2026 Google LLC 1600 Amphitheatre Parkway, Mountain View, CA 94043 You've received this email to let you know about important changes to your Google Account and services.
+
+Diagnostic attendu : verdict="legitime"
+Raison : Authentification SPF/DKIM/DMARC toutes valides, contenu coherent et substantiel, aucune incoherence d'expediteur.
+
+--- Exemple ---
+IP: 51.161.193.159
+SPF: pass
+DKIM: pass
+DMARC: Unknown
+From: NPR <email@rapidactionbusiness.com>
+Subject: U.S. strikes Iran for the second consecutive day. And, tensions in Mexico City threaten to disrupt the World Cup
+
+
+
+Diagnostic attendu : verdict="spam"
+Raison : Incoherence flagrante entre le nom affiche ('NPR', une radio connue) et le domaine reel de l'expediteur (rapidactionbusiness.com), qui n'a aucun rapport. Absence de DMARC malgre SPF/DKIM valides.
+
+--- Exemple ---
+IP: 209.85.220.41
+SPF: pass
+DKIM: pass
+DMARC: pass
+From: Amine Dahmani <amine1.dahmani@gmail.com>
+Subject: Sp@am14728/&
+
+Urgent
+
+Diagnostic attendu : verdict="spam"
+Raison : Objet contenant des caracteres speciaux meles aux lettres (obfuscation classique : 'Sp@am14728/&'), technique utilisee pour contourner les filtres anti-spam bases sur les mots-cles.
+
+--- Exemple ---
+IP: 10.25.201.208
+SPF: Unknown
+DKIM: Unknown
+DMARC: Unknown
+From: "Gmail 팀" <mail-noreply@google.com>
+Subject: Gmail 활용 팁 3가지를 소개합니다
+
+Gmail 활용 팁 3가지를 소개합니다 [image: Google] 안녕하세요, 복수님 Gmail 활용 팁 3가지를 소개합니다! [image: 주소록] Gmail로 주소록과 메일 가져오기 컴퓨터에서 기존 이메일 계정의 주소록과 이메일을 복사하여 더욱 쉽게 Gmail로 전환할 수 있습니다. 자세히 알아보기 [image: 검색] 원하는 내용을 빠르게 검색 받은편지함에서 바로 Google 검색을 실행하여 이메일을 쉽게 정리할 수 있습니다. 이메일 본문, 과거 검색기록 및 주소록을 바탕으로 제시되는 예상 검색어를 활용해 보세요. [image: 검색] 이메일 그 이상의 경험 행아웃 을 사용하면 Gmail에서 바로 문자 메시지를 보내거나 화상 통화를 시작할 수 있습니다. 휴대기기에서 이 기능을 사용하려면 Android 또는 Apple 기기용 행아웃 앱을 다운로드하세요. [image: Gmail 아이콘] Gmail과 즐거운 시간 보내세요! Gmail 팀 © 2016 Google Inc. 1600 Amphitheatre Parkway, Mountain View, CA 94043
+
+Diagnostic attendu : verdict="suspect"
+Raison : SPF/DKIM/DMARC tous a 'Unknown' (authentification non confirmee, ni positive ni negative), bien que le contenu et l'expediteur semblent coherents. Necessite une prudence sans conclure au spam par defaut.
+
+
+Analyse maintenant le NOUVEL email ci-dessous (headers d'authentification + expediteur + objet + corps) et donne ton diagnostic, en suivant le meme type de raisonnement que dans les exemples.
+
+Reponds UNIQUEMENT avec un objet JSON valide, sans aucun texte avant ou apres, au format exact suivant :
+{
+  "verdict": "spam" ou "legitime",
+  "score": un nombre entier de 0 a 100 (0 = totalement legitime, 100 = spam evident),
+  "label_phishing": true ou false (l'email tente-t-il de voler des identifiants ou informations sensibles, ex: fausse page de connexion, demande de mot de passe ?),
+  "label_spoofing": true ou false (le nom ou domaine de l'expediteur est-il usurpe ou incoherent avec l'identite affichee ?),
+  "label_scam": true ou false (l'email propose-t-il une arnaque financiere, ex: gain d'argent, heritage, investissement douteux ?),
+  "label_bulk": true ou false (l'email ressemble-t-il a un envoi de masse non personnalise, ex: newsletter publicitaire generique sans lien avec un compte ou une action specifique du destinataire ?),
+  "harmful_elements": une liste de chaines de texte courtes decrivant les elements suspects trouves (vide si aucun),
+  "recommendation": une phrase en francais expliquant comment ameliorer cet email pour eviter qu'il soit classe comme spam (vide si l'email est legitime)
+}
+
+Un email peut avoir plusieurs de ces labels a true en meme temps, ou aucun si l'email est legitime.
+
+Nouvel email a analyser :
+---
+IP: 209.85.220.73
+SPF: pass
+DKIM: pass
+DMARC: pass
+From: Google <no-reply@accounts.google.com>
+Subject: 보안 알림
+
+[image: Google] Windows에서 새로 로그인함 01020369191k@gmail.com Windows 기기에서 내 Google 계정에 새로 로그인했습니다. 직접 로그인한 것이 맞다면 아무런 조치를 취하지 않아도 됩니다. 본인이 아니라면 안내에 따라 계정을 보호하세요. 활동 확인 다음 페이지에서 보안 활동도 확인할 수 있습니다. https://myaccount.google.com/notifications 이 이메일은 Google 계정 및 서비스의 중요한 변경사항을 알려드리기 위해 발송되었습니다. © 2026 Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043, USA
+---
+
+Reponds uniquement avec le JSON, rien d'autre.

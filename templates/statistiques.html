@@ -1,0 +1,243 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Statistiques {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="page-wrapper">
+    <div class="row page-titles">
+        <div class="col-md-12 col-12 align-self-center">
+            <h3 class="text-themecolor mb-0">Statistiques</h3>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('home_blueprint.emails_page') }}">Accueil</a></li>
+                <li class="breadcrumb-item active">Statistiques</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <!-- ============ GRANDE CARD SECTION 1 : DATASET REEL ============ -->
+        <div class="card" style="border: 2px solid #26c6da; margin-bottom: 30px;">
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-12">
+                        <h5 class="mb-1" style="color: #26c6da;">Dataset reel — Analyse heuristique</h5>
+                        <p class="text-muted">
+                            Statistiques calculees sur les {{ stats_heuristique.total_analyse }} emails
+                            reellement collectes via Gmail, en comparant le vrai label Gmail
+                            (INBOX/SPAM) a la classification de l'heuristique.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3 col-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted">Emails analyses</h6>
+                                <h2 class="text-themecolor">{{ stats_heuristique.total_analyse }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted">Score moyen</h6>
+                                <h2 class="text-info">{{ stats_heuristique.score_moyen if stats_heuristique.score_moyen is not none else '-' }}/100</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted">Vrais SPAM bien detectes</h6>
+                                <h2 class="{{ 'text-danger' if stats_heuristique.taux_detection_spam < 50 else 'text-success' }}">
+                                    {{ stats_heuristique.taux_detection_spam }}%
+                                </h2>
+                                <p class="text-muted mb-0" style="font-size:0.75rem;">sur {{ stats_heuristique.total_vrai_spam }} emails reellement spam</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted">Vrais INBOX bien detectes</h6>
+                                <h2 class="text-success">{{ stats_heuristique.taux_detection_inbox }}%</h2>
+                                <p class="text-muted mb-0" style="font-size:0.75rem;">sur {{ stats_heuristique.total_vrai_inbox }} emails reellement legitimes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Repartition des classifications</h5>
+                                {% for classification, count in stats_heuristique.repartition_classification.items() %}
+                                {% set pourcentage = (count / stats_heuristique.total_analyse * 100) if stats_heuristique.total_analyse > 0 else 0 %}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>{{ classification }}</span>
+                                        <span class="text-muted">{{ count }} ({{ "%.1f"|format(pourcentage) }}%)</span>
+                                    </div>
+                                    <div class="progress" style="height: 18px;">
+                                        <div class="progress-bar {{ 'bg-danger' if classification == 'SPAM' else ('bg-warning' if classification == 'SUSPECT' else 'bg-success') }}"
+                                             role="progressbar" style="width: {{ pourcentage }}%;">
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Resultat marquant</h5>
+                                <p class="mb-1">
+                                    Sur <strong>{{ stats_heuristique.total_vrai_spam }}</strong> emails
+                                    reellement classes SPAM par Gmail, l'heuristique en a correctement
+                                    identifie <strong>{{ stats_heuristique.croisement.SPAM.SPAM or 0 }}</strong>
+                                    ({{ stats_heuristique.taux_detection_spam }}%).
+                                </p>
+                                <p class="text-muted mb-0" style="font-size:0.85rem;">
+                                    Ce resultat montre une limite importante de l'heuristique basee sur des
+                                    regles fixes (SPF/DKIM/DMARC + mots-cles) : la plupart des vrais spams
+                                    de ce dataset ont une authentification technique valide, donc
+                                    l'heuristique ne les detecte pas. Cela justifie l'interet d'une analyse
+                                    par IA, capable de juger le contenu au-dela des seuls criteres techniques.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ============ GRANDE CARD SECTION 2 : TESTS DU SIMULATEUR ============ -->
+        <div class="card" style="border: 2px solid #fb9678;">
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-12">
+                        <h5 class="mb-1" style="color: #fb9678;">Tests du simulateur — Analyse IA</h5>
+                        <p class="text-muted">
+                            Statistiques sur les {{ stats_simulations.total }} offres fictives que
+                            vous avez testees via le simulateur. Ce sont des cas construits pour
+                            tester l'outil, pas des emails reellement envoyes : ces chiffres
+                            n'ont donc pas de valeur statistique scientifique, contrairement a la
+                            section ci-dessus.
+                        </p>
+                    </div>
+                </div>
+
+                {% if stats_simulations.total == 0 %}
+                <div class="row">
+                    <div class="col-12">
+                        <p class="text-muted mb-0">
+                            Aucune simulation testee pour le moment.
+                            <a href="{{ url_for('home_blueprint.simulateur_page') }}">Lancez votre premier test</a>.
+                        </p>
+                    </div>
+                </div>
+                {% else %}
+
+                <div class="row">
+                    <div class="col-md-4 col-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted">Offres testees</h6>
+                                <h2 class="text-themecolor">{{ stats_simulations.total }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted">Score moyen</h6>
+                                <h2 class="text-info">{{ stats_simulations.score_moyen if stats_simulations.score_moyen is not none else '-' }}/100</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="text-muted">SPAM vs LEGITIME</h6>
+                                <h4 class="mb-0">
+                                    <span class="badge badge-danger">{{ stats_simulations.repartition_verdict.spam or 0 }} spam</span>
+                                    <span class="badge badge-success">{{ stats_simulations.repartition_verdict.legitime or 0 }} legitime</span>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Repartition SPAM / LEGITIME</h5>
+                                {% set total_verdict = (stats_simulations.repartition_verdict.spam or 0) + (stats_simulations.repartition_verdict.legitime or 0) %}
+                                {% set pct_spam = (stats_simulations.repartition_verdict.spam / total_verdict * 100) if total_verdict > 0 else 0 %}
+                                {% set pct_legitime = (stats_simulations.repartition_verdict.legitime / total_verdict * 100) if total_verdict > 0 else 0 %}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>SPAM</span>
+                                        <span class="text-muted">{{ stats_simulations.repartition_verdict.spam or 0 }} ({{ "%.1f"|format(pct_spam) }}%)</span>
+                                    </div>
+                                    <div class="progress" style="height: 18px;">
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ pct_spam }}%;"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>LEGITIME</span>
+                                        <span class="text-muted">{{ stats_simulations.repartition_verdict.legitime or 0 }} ({{ "%.1f"|format(pct_legitime) }}%)</span>
+                                    </div>
+                                    <div class="progress" style="height: 18px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ pct_legitime }}%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Frequence des labels detectes</h5>
+                                {% set max_label = [stats_simulations.repartition_labels.Phishing, stats_simulations.repartition_labels.Spoofing, stats_simulations.repartition_labels.Scam, stats_simulations.repartition_labels.Bulk, 1] | max %}
+                                {% for nom, count in stats_simulations.repartition_labels.items() %}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>{{ nom }}</span>
+                                        <span class="text-muted">{{ count }}</span>
+                                    </div>
+                                    <div class="progress" style="height: 18px;">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ (count / max_label * 100) if max_label > 0 else 0 }}%;"></div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% endif %}
+
+            </div>
+        </div>
+
+        {% include 'includes/footer.html' %}
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}

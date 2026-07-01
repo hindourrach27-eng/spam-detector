@@ -1,0 +1,104 @@
+/* btn_badge_override.css
+   Target: simple solid buttons like your "Create App" image:
+   - small radius
+   - solid color (works with your inline background styles)
+   - subtle top highlight (lam3a)
+   - NO outer shadow
+   - TEXT NOT BOLD
+   Load LAST after all CSS.
+*/
+
+/* ===== Base .btn ===== */
+.btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:.45rem !important;
+
+  padding:10px 14px !important;
+  border-radius:6px !important;         /* small radius */
+
+  font-weight:500 !important;           /* normal text */
+  text-transform:none !important;
+  letter-spacing:0 !important;
+
+  border:0 !important;
+
+  /* NO outer shadow — keep only subtle inner shine */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -1px 0 rgba(0,0,0,.12) !important;
+
+  transition: filter .12s ease !important;
+}
+
+.btn:hover{
+  filter: brightness(1.04) !important;
+}
+
+.btn:active{
+  filter: brightness(.99) !important;
+}
+
+/* Helpers */
+.btn.text-white{ color:#fff !important; }
+
+/* Override Bootstrap bold helpers if present in HTML */
+.btn.font-weight-bold,
+.btn.fw-bold{
+  font-weight:500 !important;
+}
+
+/* Optional: ensure Bootstrap colored buttons keep white text */
+.btn-primary,
+.btn-success,
+.btn-info,
+.btn-warning,
+.btn-danger,
+.btn-secondary,
+.btn-dark{
+  color:#fff !important;
+}
+
+/* ===== Force same style on your specific buttons (IDs) ===== */
+html body #monitoringPage,
+html body #savedProcesses,
+html body #startGuide,
+html body #explainModeBtn,
+html body #btn_reporting_processListRepo,
+html body #SaveBtn_reporting_processListRepo,
+html body #SaveProcessBtn_reporting_processListRepo{
+  border-radius:6px !important;
+  border:0 !important;
+  font-weight:500 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -1px 0 rgba(0,0,0,.12) !important;
+}
+
+html body #monitoringPage:hover,
+html body #savedProcesses:hover,
+html body #startGuide:hover,
+html body #explainModeBtn:hover,
+html body #btn_reporting_processListRepo:hover,
+html body #SaveBtn_reporting_processListRepo:hover,
+html body #SaveProcessBtn_reporting_processListRepo:hover{
+  filter: brightness(1.04) !important;
+}
+
+/* ===== Badges ===== */
+.badge{
+  border-radius:6px !important;
+  font-weight:500 !important;           /* normal text */
+  padding:.30em .55em !important;
+}
+
+/* Bootstrap 5 (bg-*) + Bootstrap 4 (badge-*) */
+.badge.bg-primary, .badge-primary{ background:#5e72e4 !important; color:#fff !important; }
+.badge.bg-success, .badge-success{ background:#2dce89 !important; color:#fff !important; }
+.badge.bg-info,    .badge-info{    background:#11cdef !important; color:#fff !important; }
+.badge.bg-warning, .badge-warning{ background:#fb6340 !important; color:#fff !important; }
+.badge.bg-danger,  .badge-danger{  background:#f5365c !important; color:#fff !important; }
+.badge.bg-dark,    .badge-dark{    background:#344767 !important; color:#fff !important; }
+
+.badge.rounded-pill{ border-radius:10rem !important; }

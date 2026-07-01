@@ -1,0 +1,283 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Emails collectes {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.css">
+{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="page-wrapper">
+    <div class="row page-titles">
+        <div class="col-md-5 col-12 align-self-center">
+            <h3 class="text-themecolor mb-0">Emails collectes</h3>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('home_blueprint.emails_page') }}">Accueil</a></li>
+                <li class="breadcrumb-item active">Emails collectes</li>
+            </ol>
+        </div>
+        <div class="col-md-7 col-12 align-self-center text-md-right">
+            <a href="{{ url_for('home_blueprint.emails_page') }}" class="btn btn-info btn-rounded">Retour aux emails</a>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Total</h6>
+                        <h2 class="text-themecolor" id="totalCount">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">INBOX</h6>
+                        <h2 class="text-info" id="inboxCount">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">SPAM</h6>
+                        <h2 class="text-danger" id="spamCount">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">SPF valide</h6>
+                        <h2 class="text-success" id="spfValidCount">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">Analyse heuristique en masse</h6>
+                        <p class="text-muted" style="font-size: 0.9rem;">
+                            Applique les règles d'analyse (IP, SPF, DKIM, DMARC, mots suspects, liens)
+                            sur tous les emails collectés. Rapide, ne nécessite pas de connexion Gmail.
+                        </p>
+                        <button type="button" class="btn btn-warning btn-rounded" id="heuristicAllBtn">
+                            Analyser tout (règles)
+                        </button>
+
+                        <div id="heuristicProgressWrapper" class="mt-3" style="display: none;">
+                            <div class="progress" style="height: 25px;">
+                                <div id="heuristicProgressBar" class="progress-bar bg-info" role="progressbar" style="width: 0%;">
+                                    0%
+                                </div>
+                            </div>
+                            <p class="text-muted mt-2 mb-0" id="heuristicProgressText">En attente...</p>
+                        </div>
+
+                        <div id="heuristicMessages" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="collectedTable" class="table table-hover" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Label</th>
+                                        <th>Expediteur</th>
+                                        <th>Objet</th>
+                                        <th>SPF</th>
+                                        <th>DKIM</th>
+                                        <th>IP</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'includes/footer.html' %}
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script src="/static/assets/libs/datatables/media/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.8/js/dataTables.bootstrap4.min.js"></script>
+<script src="/static/assets/js/pages/datatable/custom-datatable.js"></script>
+<script>
+$(document).ready(function () {
+    $('#collectedTable').DataTable({
+        ajax: {
+            url: '/collected/data',
+            dataSrc: function (json) {
+                $('#totalCount').text(json.total);
+                $('#inboxCount').text(json.inbox_count);
+                $('#spamCount').text(json.spam_count);
+                $('#spfValidCount').text(json.spf_valid_count);
+                return json.data;
+            }
+        },
+        columns: [
+            {
+                data: 'label',
+                render: function (label) {
+                    return label === 'SPAM'
+                        ? '<span class="badge badge-danger">SPAM</span>'
+                        : '<span class="badge badge-info">INBOX</span>';
+                }
+            },
+            {
+                data: 'expediteur',
+                render: function (val) {
+                    return `<span class="text-truncate d-inline-block" style="max-width:220px;" title="${val}">${val}</span>`;
+                }
+            },
+            {
+                data: 'objet',
+                render: function (val) {
+                    return `<span class="text-truncate d-inline-block" style="max-width:220px;" title="${val}">${val}</span>`;
+                }
+            },
+            {
+                data: 'spf',
+                render: function (val) {
+                    if (val === 'pass') return '<span class="badge badge-success">pass</span>';
+                    if (val === 'Unknown') return '<span class="badge badge-secondary">inconnu</span>';
+                    return `<span class="badge badge-danger">${val}</span>`;
+                }
+            },
+            {
+                data: 'dkim',
+                render: function (val) {
+                    if (val === 'pass') return '<span class="badge badge-success">pass</span>';
+                    if (val === 'Unknown') return '<span class="badge badge-secondary">inconnu</span>';
+                    return `<span class="badge badge-danger">${val}</span>`;
+                }
+            },
+            {
+                data: 'ip',
+                render: function (val) {
+                    return val || '-';
+                }
+            },
+            {
+                data: 'date_collecte',
+                render: function (val) {
+                    return val ? val.substring(0, 10) : '-';
+                }
+            },
+            {
+                data: 'id',
+                orderable: false,
+                render: function (id) {
+                    return `<a href="/analyse/${id}" class="btn btn-info btn-sm btn-rounded">Analyser</a>`;
+                }
+            }
+        ],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/fr-FR.json'
+        }
+    });
+});
+</script>
+
+<script>
+const heuristicAllBtn = document.getElementById('heuristicAllBtn');
+const heuristicProgressWrapper = document.getElementById('heuristicProgressWrapper');
+const heuristicProgressBar = document.getElementById('heuristicProgressBar');
+const heuristicProgressText = document.getElementById('heuristicProgressText');
+const heuristicMessages = document.getElementById('heuristicMessages');
+
+let heuristicPollingInterval = null;
+
+function showHeuristicMessage(message, type) {
+    const div = document.createElement('div');
+    div.className = `alert alert-${type}`;
+    div.textContent = message;
+    heuristicMessages.appendChild(div);
+}
+
+function pollHeuristicStatus() {
+    heuristicPollingInterval = setInterval(async () => {
+        try {
+            const response = await fetch('/analyze-all-heuristic/status');
+            const status = await response.json();
+
+            if (status.total > 0) {
+                const percent = Math.round((status.traites / status.total) * 100);
+                heuristicProgressBar.style.width = percent + '%';
+                heuristicProgressBar.textContent = percent + '%';
+                heuristicProgressText.textContent = `${status.traites} / ${status.total} emails traités`;
+            } else {
+                heuristicProgressText.textContent = 'Préparation...';
+            }
+
+            if (status.termine) {
+                clearInterval(heuristicPollingInterval);
+                heuristicAllBtn.disabled = false;
+
+                if (status.erreur) {
+                    showHeuristicMessage('Erreur : ' + status.erreur, 'danger');
+                } else {
+                    showHeuristicMessage(
+                        `Analyse terminée : ${status.traites} email(s) traité(s) sur ${status.total}.`,
+                        'success'
+                    );
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                }
+            }
+        } catch (error) {
+            clearInterval(heuristicPollingInterval);
+            heuristicAllBtn.disabled = false;
+            showHeuristicMessage('Erreur lors du suivi de la progression : ' + error.message, 'danger');
+        }
+    }, 2000);
+}
+
+heuristicAllBtn.addEventListener('click', async () => {
+    heuristicAllBtn.disabled = true;
+    heuristicMessages.innerHTML = '';
+    heuristicProgressWrapper.style.display = 'block';
+    heuristicProgressBar.style.width = '0%';
+    heuristicProgressBar.textContent = '0%';
+    heuristicProgressText.textContent = 'Démarrage...';
+
+    try {
+        const response = await fetch('/analyze-all-heuristic', { method: 'POST' });
+        const data = await response.json();
+
+        if (response.ok) {
+            pollHeuristicStatus();
+        } else {
+            heuristicAllBtn.disabled = false;
+            showHeuristicMessage(data.error || 'Erreur inconnue', 'danger');
+        }
+    } catch (error) {
+        heuristicAllBtn.disabled = false;
+        showHeuristicMessage('Erreur : ' + error.message, 'danger');
+    }
+});
+</script>
+{% endblock javascripts %}

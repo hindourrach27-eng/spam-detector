@@ -1,0 +1,160 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Analyse {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="page-wrapper">
+    <div class="row page-titles">
+        <div class="col-md-12 col-12 align-self-center">
+            <h3 class="text-themecolor mb-0">Diagnostic spam</h3>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('home_blueprint.collected_page') }}">Emails collectes</a></li>
+                <li class="breadcrumb-item active">Diagnostic</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-md-6 col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted">Email analyse</h6>
+                        <p class="mb-1"><strong>Expediteur :</strong> {{ email.expediteur }}</p>
+                        <p class="mb-0"><strong>Objet :</strong> {{ email.objet }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Score de spam</h6>
+                        {% if resultats.score_spam >= 70 %}
+                        <h2 class="text-danger">{{ resultats.score_spam }}/100</h2>
+                        {% elif resultats.score_spam >= 40 %}
+                        <h2 class="text-warning">{{ resultats.score_spam }}/100</h2>
+                        {% else %}
+                        <h2 class="text-success">{{ resultats.score_spam }}/100</h2>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Classification</h6>
+                        {% if resultats.classification == 'SPAM' %}
+                        <span class="badge badge-danger" style="font-size: 1.1rem;">SPAM</span>
+                        {% elif resultats.classification == 'SUSPECT' %}
+                        <span class="badge badge-warning" style="font-size: 1.1rem;">SUSPECT</span>
+                        {% else %}
+                        <span class="badge badge-success" style="font-size: 1.1rem;">LEGITIME</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Detail des criteres</h5>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Critere</th>
+                                        <th>Statut</th>
+                                        <th>Raison</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>IP blacklistee</td>
+                                        <td>
+                                            {% if resultats.ip_blacklistee %}
+                                            <span class="badge badge-danger">Oui</span>
+                                            {% else %}
+                                            <span class="badge badge-success">Non</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ resultats.raison_ip }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>SPF</td>
+                                        <td>
+                                            {% if resultats.spf_valide %}
+                                            <span class="badge badge-success">Valide</span>
+                                            {% else %}
+                                            <span class="badge badge-danger">Invalide</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ resultats.raison_spf }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>DKIM</td>
+                                        <td>
+                                            {% if resultats.dkim_valide %}
+                                            <span class="badge badge-success">Valide</span>
+                                            {% else %}
+                                            <span class="badge badge-danger">Invalide</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ resultats.raison_dkim }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>DMARC</td>
+                                        <td>
+                                            {% if resultats.dmarc_valide %}
+                                            <span class="badge badge-success">Valide</span>
+                                            {% else %}
+                                            <span class="badge badge-danger">Invalide</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ resultats.raison_dmarc }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mots suspects</td>
+                                        <td>
+                                            {% if resultats.mots_suspects %}
+                                            <span class="badge badge-warning">{{ resultats.score_mots_suspects }} trouve(s)</span>
+                                            {% else %}
+                                            <span class="badge badge-success">Aucun</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ resultats.mots_suspects or '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Liens suspects</td>
+                                        <td>
+                                            {% if resultats.liens_suspects %}
+                                            <span class="badge badge-warning">{{ resultats.score_liens_suspects }} trouve(s)</span>
+                                            {% else %}
+                                            <span class="badge badge-success">Aucun</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ resultats.liens_suspects or '-' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'includes/footer.html' %}
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}

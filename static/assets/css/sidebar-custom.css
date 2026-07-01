@@ -1,0 +1,932 @@
+ /* Sidebar: Bold-style – clean, modern, light, grouped sections (QuickRepo) */
+
+/* ========== Design tokens ========== */
+:root {
+  --sidebar-bg: #fff;
+  --sidebar-section-color: #6c757d;
+  --sidebar-text: #343a40;
+  --sidebar-hover-bg: rgba(30, 136, 229, 0.08);
+  --sidebar-active-pill: #212529;
+  --sidebar-active-text: #fff;
+  --sidebar-active-chevron: #42a5f5;
+  /* Pill background: dark #212529 (not gray #6C757D) */
+  --sidebar-radius: 12px;
+  --sidebar-link-padding: 12px 15px;
+  --sidebar-item-gap: 6px;
+  --sidebar-team-selected-bg: #f8f9fa;
+}
+
+/* Dark sidebar theme tokens (applied via body.sidebar-dark) */
+body.sidebar-dark {
+  --sidebar-bg: #1e252b;
+  --sidebar-section-color: #ffffff;
+  --sidebar-text: #ffffff;
+  --sidebar-hover-bg: rgba(148, 163, 184, 0.25);
+  --sidebar-active-pill: #263340;
+  --sidebar-active-text: #ffffff;
+  --sidebar-active-chevron: #fbbf24;
+  --sidebar-team-selected-bg: #263340;
+}
+
+/* .sidebar: main container (used with .left-sidebar) */
+.sidebar.left-sidebar,
+.left-sidebar.sidebar {
+  background-color: var(--sidebar-bg) !important;
+}
+
+/* ----- Sidebar header: brand + collapse toggle (exact image) ----- */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 15px 20px;
+  border-bottom: none;
+  flex-shrink: 0;
+}
+.sidebar-brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #212b36;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+.sidebar-brand:hover {
+  color: #212b36;
+  text-decoration: none;
+}
+.sidebar-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #eef0f4;
+  border: none;
+  border-radius: 8px;
+  color: #5a6577;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.sidebar-toggle-btn:hover {
+  background-color: #e2e6ec;
+  color: #212b36;
+  text-decoration: none;
+}
+.sidebar-toggle-btn i {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ----- Top profile + search (exact image feel) ----- */
+.sidebar-top {
+  padding-bottom: 10px;
+}
+.sidebar-profile-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 15px 12px;
+  text-decoration: none;
+  color: var(--sidebar-text, #343a40);
+}
+.sidebar-profile-top:hover {
+  text-decoration: none;
+  color: var(--sidebar-text, #343a40);
+}
+.sidebar-profile-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.sidebar-profile-meta {
+  min-width: 0;
+}
+.sidebar-profile-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #212b36;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-profile-subtitle {
+  font-size: 0.75rem;
+  color: #9aa3ad;
+  margin-top: 2px;
+}
+
+/* Dark theme: make profile name and subtitle brighter for better contrast */
+body.sidebar-dark .sidebar-profile-name {
+  color: #ffffff !important;
+}
+body.sidebar-dark .sidebar-profile-subtitle {
+  color: #e5e7eb !important;
+}
+
+.sidebar-search-wrap {
+  padding-top: 2px;
+  padding-bottom: 0 !important; /* override pb-2 utility */
+  margin-bottom: 0 !important;
+}
+.sidebar-search-input,
+#sidebar-search-input {
+  background-color: #f5f6f8;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  height: 36px;
+}
+
+/* .sidebar-section-title: TEAMS / MENU style (exact image) */
+.sidebar-section-title,
+.left-sidebar .nav-small-cap.sidebar-section-title {
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #1e88e5 !important;
+  padding: 4px 15px 4px !important;
+  margin-bottom: 4px !important;
+  list-style: none !important;
+}
+/* Space between TEAMS and MENU like the image */
+.left-sidebar .sidebar-nav {
+  margin-top: 0 !important;
+}
+
+/* Remove extra default spacing above first menu items */
+.left-sidebar .sidebar-nav #sidebarnav {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Footer actions at bottom: settings + logout */
+.left-sidebar .sidebar-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 15px;
+  height: 60px;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative !important; /* keep footer inside sidebar column only */
+  left: auto !important;
+  right: auto !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  background-color: #fff !important;
+}
+
+/* Lift the footer off the bottom (theme sets it to stick) */
+.left-sidebar {
+  position: relative;
+}
+.left-sidebar .scroll-sidebar {
+  padding-bottom: 80px; /* leave room for footer without big gap */
+}
+.left-sidebar .sidebar-footer {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 4px !important; /* small margin from bottom */
+}
+.left-sidebar .sidebar-footer a.link {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  background-color: #f5f6f8;
+  color: #6c757d;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.left-sidebar .sidebar-footer a.link:hover {
+  background-color: #eef0f4;
+  color: #212b36;
+  text-decoration: none;
+}
+
+/* Sidebar width and content offset only when sidebar is expanded (not .mini-sidebar) */
+#main-wrapper:not(.mini-sidebar) .left-sidebar {
+  width: 280px !important;
+  min-width: 280px !important;
+}
+
+/* Collapsed state: sidebar narrow, content offset to match (hamburger toggle) */
+#main-wrapper.mini-sidebar .left-sidebar {
+  width: 60px !important;
+  min-width: 60px !important;
+}
+
+/* Push main content right by sidebar width when expanded */
+@media (min-width: 768px) {
+  #main-wrapper:not(.mini-sidebar) .page-wrapper {
+    margin-left: 280px !important;
+  }
+  #main-wrapper.mini-sidebar .page-wrapper {
+    margin-left: 60px !important;
+  }
+}
+
+.left-sidebar,
+.left-sidebar .scroll-sidebar,
+.left-sidebar .sidebar-footer,
+.left-sidebar .sidebar-nav,
+.left-sidebar .sidebar-nav ul,
+.left-sidebar .sidebar-nav ul ul {
+  background-color: var(--sidebar-bg) !important;
+  background-image: none !important;
+}
+
+/* Footer background respects theme */
+body.sidebar-dark .left-sidebar .sidebar-footer {
+  background-color: #1e252b !important;
+  border-top-color: rgba(148, 163, 184, 0.35) !important;
+}
+
+/* Base link + text colors in dark mode */
+body.sidebar-dark .left-sidebar .sidebar-nav a.sidebar-link {
+  color: var(--sidebar-text, #f9fafb) !important;
+}
+
+body.sidebar-dark .left-sidebar .sidebar-nav a.sidebar-link .hide-menu {
+  color: var(--sidebar-text, #f9fafb) !important;
+}
+
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-submenu a.sidebar-link::before,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-submenu a.sidebar-sublink::before {
+  background-color: #6b7280 !important;
+}
+
+/* Hover state in dark mode */
+body.sidebar-dark .left-sidebar .sidebar-nav a.sidebar-link:hover {
+  background-color: var(--sidebar-hover-bg, rgba(148, 163, 184, 0.25)) !important;
+  color: #f9fafb !important;
+}
+
+body.sidebar-dark .left-sidebar .sidebar-nav a.sidebar-link:hover .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav a.sidebar-link:hover i {
+  color: #f9fafb !important;
+}
+
+/* Icons on top-level items in dark mode */
+body.sidebar-dark #sidebarnav > .sidebar-item > a.sidebar-link:not(.active) i,
+body.sidebar-dark #sidebarnav > .sidebar-item:not(.active):not(.selected):not(.current):not(.mm-active) > a.sidebar-link i {
+  color: #ffffff !important;
+}
+
+/* Active + selected states in dark mode: darker pill + light text */
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-item.active > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-item.selected > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-item.current > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .mm-active > a.sidebar-link {
+  background-color: var(--sidebar-active-pill, #111827) !important;
+  color: var(--sidebar-active-text, #f9fafb) !important;
+}
+
+body.sidebar-dark #sidebarnav > .sidebar-item.active > a.sidebar-link,
+body.sidebar-dark #sidebarnav > .sidebar-item.selected > a.sidebar-link,
+body.sidebar-dark #sidebarnav > .sidebar-item.current > a.sidebar-link {
+  background-color: var(--sidebar-active-pill, #111827) !important;
+  color: var(--sidebar-active-text, #f9fafb) !important;
+}
+
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.active > a.sidebar-link {
+  background-color: var(--sidebar-active-pill, #111827) !important;
+  color: var(--sidebar-active-text, #f9fafb) !important;
+}
+
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.active > a.sidebar-link .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.active > a.sidebar-link i {
+  color: var(--sidebar-active-text, #f9fafb) !important;
+}
+
+/* Parent item dark when any child active (dark mode) */
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-item:has(> ul .sidebar-item.active) > a.sidebar-link {
+  background-color: var(--sidebar-active-pill, #111827) !important;
+  color: var(--sidebar-active-text, #f9fafb) !important;
+}
+
+/* Search + section titles in dark mode */
+body.sidebar-dark #sidebar-search-input {
+  background-color: #1e252b;
+  color: #f9fafb;
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+body.sidebar-dark #sidebar-search-input::placeholder {
+  color: #6b7280;
+}
+
+body.sidebar-dark .sidebar-section-title,
+body.sidebar-dark .left-sidebar .nav-small-cap.sidebar-section-title {
+  color: #1e88e5 !important;
+}
+
+/* Footer buttons in dark mode: darker background + light icons */
+body.sidebar-dark .left-sidebar .sidebar-footer a.link {
+  background-color: #1e252b;
+  color: #e5e7eb;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+body.sidebar-dark .left-sidebar .sidebar-footer a.link:hover {
+  background-color: #263340;
+  color: #f9fafb;
+}
+
+
+.left-sidebar .sidebar-nav .sidebar-item {
+  background: transparent !important;
+  margin-bottom: var(--sidebar-item-gap, 6px);
+}
+
+/* Submenu: hidden by default, stay visible when opened by click (.in) */
+.left-sidebar .sidebar-nav ul.first-level.collapse,
+.left-sidebar .sidebar-nav ul.sidebar-submenu.collapse,
+.left-sidebar .sidebar-nav ul.second-level.collapse {
+  display: none;
+}
+/* High specificity so submenu stays visible when open, even when not hovering */
+#sidebarnav .sidebar-item ul.first-level.collapse.in,
+#sidebarnav .sidebar-item ul.sidebar-submenu.collapse.in,
+#sidebarnav .sidebar-item ul.second-level.collapse.in,
+.left-sidebar .sidebar-nav ul.first-level.collapse.in,
+.left-sidebar .sidebar-nav ul.sidebar-submenu.collapse.in,
+.left-sidebar .sidebar-nav ul.second-level.collapse.in {
+  display: block !important;
+  visibility: visible !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+/* When parent link is active (clicked), keep submenu visible regardless of hover */
+#sidebarnav .sidebar-item > a.active + ul.first-level.collapse,
+#sidebarnav .sidebar-item > a.active + ul.sidebar-submenu.collapse,
+#sidebarnav .sidebar-item > a.active + ul.second-level.collapse {
+  display: block !important;
+  visibility: visible !important;
+  height: auto !important;
+}
+
+/* Second-level submenu: nested under first-level (e.g. Projects > My Projects, Targets) */
+.left-sidebar .sidebar-nav ul.second-level.collapse,
+.left-sidebar .sidebar-nav .first-level ul.sidebar-submenu.collapse {
+  display: none;
+  list-style: none;
+  padding-left: 0;
+  margin: 2px 0 4px 0;
+}
+.left-sidebar .sidebar-nav ul.second-level.collapse.in,
+.left-sidebar .sidebar-nav .first-level ul.sidebar-submenu.collapse.in {
+  display: block !important;
+  visibility: visible !important;
+  height: auto !important;
+}
+/* Second-level links: more indentation + same dot */
+.left-sidebar .sidebar-nav .first-level .second-level a.sidebar-link,
+.left-sidebar .sidebar-nav .first-level .second-level a.sidebar-sublink {
+  padding: 10px 12px 10px 56px !important;
+}
+.left-sidebar .sidebar-nav .first-level .second-level a.sidebar-link::before,
+.left-sidebar .sidebar-nav .first-level .second-level a.sidebar-sublink::before {
+  left: 34px !important;
+}
+/* First-level item with children: show chevron */
+.left-sidebar .sidebar-nav .first-level .sidebar-item > a.has-arrow::after {
+  margin-left: auto;
+  border-color: #9e9e9e !important;
+}
+
+/* ----- .sidebar-link: default + spacing & pill radius ----- */
+.left-sidebar .sidebar-nav a.sidebar-link {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  width: 100%;
+  padding: var(--sidebar-link-padding, 12px 15px) !important;
+  border-radius: var(--sidebar-radius, 12px) !important;
+  text-decoration: none !important;
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  background-color: transparent !important;
+  color: var(--sidebar-text, #343a40) !important;
+}
+
+/* .sidebar-submenu .sidebar-sublink: indented + small bullet/dot marker */
+.left-sidebar .sidebar-nav .sidebar-submenu a.sidebar-link,
+.left-sidebar .sidebar-nav .sidebar-submenu a.sidebar-sublink,
+.left-sidebar .sidebar-nav .first-level a.sidebar-link {
+  padding: 10px 12px 10px 40px !important;
+  background-color: transparent !important;
+  color: var(--sidebar-text, #343a40) !important;
+  position: relative !important;
+}
+.left-sidebar .sidebar-nav .sidebar-submenu a.sidebar-link::before,
+.left-sidebar .sidebar-nav .sidebar-submenu a.sidebar-sublink::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 18px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 4px !important;
+  height: 4px !important;
+  border-radius: 50% !important;
+  background-color: #9e9e9e !important;
+}
+.left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item:not(.active):not(.selected):not(.current):not(.mm-active) a.sidebar-link i,
+.left-sidebar .sidebar-nav .first-level .sidebar-item:not(.active):not(.selected):not(.current):not(.mm-active) a.sidebar-link i {
+  color: #9e9e9e !important;
+}
+
+.left-sidebar .sidebar-nav a.sidebar-link i {
+  flex-shrink: 0;
+  margin-right: 10px;
+  color: inherit !important;
+  font-weight: 600 !important;
+  -webkit-font-smoothing: antialiased;
+}
+/* Top-level items: medium grey icons (image) when not active */
+#sidebarnav > .sidebar-item > a.sidebar-link:not(.active) i,
+#sidebarnav > .sidebar-item:not(.active):not(.selected):not(.current):not(.mm-active) > a.sidebar-link i {
+  color: #111827 !important;
+}
+
+/* Some icon fonts use stroke; slight stroke thickens appearance */
+.left-sidebar .sidebar-nav a.sidebar-link i.mdi,
+.left-sidebar .sidebar-nav a.sidebar-link i[class^="ti-"],
+.left-sidebar .sidebar-nav a.sidebar-link i[class^="icon-"] {
+  font-weight: 700 !important;
+}
+
+.left-sidebar .sidebar-nav a.sidebar-link .hide-menu {
+  flex: 1;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  text-align: left;
+  color: #000000; /* default light theme text */
+}
+
+/* Dark theme: menu label text much whiter */
+body.sidebar-dark .left-sidebar .sidebar-nav a.sidebar-link .hide-menu {
+  color: #ffffff !important;
+}
+
+/* Dark theme: ensure top-level and active labels stay white */
+body.sidebar-dark #sidebarnav > .sidebar-item > a.sidebar-link .hide-menu,
+body.sidebar-dark #sidebarnav > .sidebar-item.active > a.sidebar-link .hide-menu,
+body.sidebar-dark #sidebarnav > .sidebar-item.selected > a.sidebar-link .hide-menu {
+  color: #ffffff !important;
+}
+
+/* Ensure dark theme sidebar labels are white, override any remaining rules */
+body.sidebar-dark #sidebarnav .hide-menu {
+  color: #ffffff !important;
+}
+
+.left-sidebar .sidebar-nav a.sidebar-link.has-arrow::after {
+  flex-shrink: 0;
+  margin-left: auto;
+  border-color: inherit !important;
+}
+
+/* ----- :focus must NOT show white – only .active/.selected should ----- */
+.left-sidebar .sidebar-nav a.sidebar-link:focus {
+  background-color: transparent !important;
+  color: #212b36 !important;
+}
+.left-sidebar .sidebar-nav a.sidebar-link:focus .hide-menu,
+.left-sidebar .sidebar-nav a.sidebar-link:focus i {
+  color: #212b36 !important;
+}
+.left-sidebar .sidebar-nav a.sidebar-link:focus.has-arrow::after {
+  border-color: #343a40 !important;
+}
+/* When parent has .active/.selected, :focus and :active keep selected style (grey or dark) */
+.left-sidebar .sidebar-nav .sidebar-item.active > a.sidebar-link:focus,
+.left-sidebar .sidebar-nav .sidebar-item.active > a.sidebar-link:active,
+.left-sidebar .sidebar-nav .sidebar-item.selected > a.sidebar-link:focus,
+.left-sidebar .sidebar-nav .sidebar-item.selected > a.sidebar-link:active,
+.left-sidebar .sidebar-nav .sidebar-item.current > a.sidebar-link:focus,
+.left-sidebar .sidebar-nav .sidebar-item.current > a.sidebar-link:active,
+.left-sidebar .sidebar-nav .mm-active > a.sidebar-link:focus,
+.left-sidebar .sidebar-nav .mm-active > a.sidebar-link:active {
+  background-color: #f0f0f0 !important;
+  color: #212b36 !important;
+}
+.left-sidebar .sidebar-nav .sidebar-item.active > a.sidebar-link:focus .hide-menu,
+.left-sidebar .sidebar-nav .sidebar-item.active > a.sidebar-link:focus i,
+.left-sidebar .sidebar-nav .sidebar-item.selected > a.sidebar-link:focus .hide-menu,
+.left-sidebar .sidebar-nav .sidebar-item.selected > a.sidebar-link:focus i,
+.left-sidebar .sidebar-nav .sidebar-item.current > a.sidebar-link:focus .hide-menu,
+.left-sidebar .sidebar-nav .sidebar-item.current > a.sidebar-link:focus i,
+.left-sidebar .sidebar-nav .mm-active > a.sidebar-link:focus .hide-menu,
+.left-sidebar .sidebar-nav .mm-active > a.sidebar-link:focus i {
+  color: #212b36 !important;
+}
+/* Sub-item active: focus/active keep dark blue */
+.left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link:focus,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link:active,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link:focus,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link:active,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link:focus,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link:active,
+.left-sidebar .sidebar-nav .first-level .mm-active > a.sidebar-link:focus,
+.left-sidebar .sidebar-nav .first-level .mm-active > a.sidebar-link:active {
+  background-color: #212529 !important;
+  color: #fff !important;
+}
+.left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link:focus .hide-menu,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link:focus i,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link:focus .hide-menu,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link:focus i,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link:focus .hide-menu,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link:focus i,
+.left-sidebar .sidebar-nav .first-level .mm-active > a.sidebar-link:focus .hide-menu,
+.left-sidebar .sidebar-nav .first-level .mm-active > a.sidebar-link:focus i {
+  color: #fff !important;
+}
+
+/* ----- .sidebar-link:hover: smooth light gray/blue (Bold style) ----- */
+.left-sidebar .sidebar-nav a.sidebar-link:hover {
+  background-color: var(--sidebar-hover-bg, rgba(30, 136, 229, 0.08)) !important;
+  color: #1e88e5 !important;
+}
+
+.left-sidebar .sidebar-nav a.sidebar-link:hover .hide-menu,
+.left-sidebar .sidebar-nav a.sidebar-link:hover i {
+  color: #1e88e5 !important;
+}
+
+.left-sidebar .sidebar-nav a.sidebar-link.has-arrow:hover::after {
+  border-color: #1e88e5 !important;
+}
+
+/* When hovering the active item, keep active style – top-level grey, sub-level dark */
+.left-sidebar .sidebar-nav .sidebar-item.active > a.sidebar-link:hover,
+.left-sidebar .sidebar-nav .sidebar-item.selected > a.sidebar-link:hover,
+.left-sidebar .sidebar-nav .sidebar-item.current > a.sidebar-link:hover,
+.left-sidebar .sidebar-nav .mm-active > a.sidebar-link:hover {
+  background-color: #f0f0f0 !important;
+  color: #212b36 !important;
+}
+
+.left-sidebar .sidebar-nav .sidebar-item.active > a.sidebar-link:hover .hide-menu,
+.left-sidebar .sidebar-nav .sidebar-item.selected > a.sidebar-link:hover .hide-menu,
+.left-sidebar .sidebar-nav .sidebar-item.current > a.sidebar-link:hover .hide-menu,
+.left-sidebar .sidebar-nav .mm-active > a.sidebar-link:hover .hide-menu,
+.left-sidebar .sidebar-nav .sidebar-item.active > a.sidebar-link:hover i,
+.left-sidebar .sidebar-nav .sidebar-item.selected > a.sidebar-link:hover i,
+.left-sidebar .sidebar-nav .sidebar-item.current > a.sidebar-link:hover i,
+.left-sidebar .sidebar-nav .mm-active > a.sidebar-link:hover i {
+  color: #212b36 !important;
+}
+/* Sub-item active hover: keep navy pill */
+.left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link:hover,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link:hover,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link:hover,
+.left-sidebar .sidebar-nav .first-level .mm-active > a.sidebar-link:hover {
+  background-color: #212529 !important;
+  color: #fff !important;
+}
+.left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link:hover .hide-menu,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link:hover .hide-menu,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link:hover .hide-menu,
+.left-sidebar .sidebar-nav .first-level .mm-active > a.sidebar-link:hover .hide-menu,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link:hover i,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link:hover i,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link:hover i,
+.left-sidebar .sidebar-nav .first-level .mm-active > a.sidebar-link:hover i {
+  color: #fff !important;
+}
+
+/* ----- Active / selected: top-level = light grey + dark text (reference “AudioEngine” style) ----- */
+.left-sidebar .sidebar-nav .sidebar-item.active > a.sidebar-link,
+.left-sidebar .sidebar-nav .sidebar-item.selected > a.sidebar-link,
+.left-sidebar .sidebar-nav .sidebar-item.current > a.sidebar-link,
+.left-sidebar .sidebar-nav .mm-active > a.sidebar-link {
+  background-color: #f0f0f0 !important;
+  color: #212b36 !important;
+  box-shadow: none;
+  border: none;
+}
+
+.left-sidebar .sidebar-nav .sidebar-item.active > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .sidebar-item.selected > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .sidebar-item.current > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .mm-active > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .sidebar-item.active > a.sidebar-link i,
+.left-sidebar .sidebar-nav .sidebar-item.selected > a.sidebar-link i,
+.left-sidebar .sidebar-nav .sidebar-item.current > a.sidebar-link i,
+.left-sidebar .sidebar-nav .mm-active > a.sidebar-link i {
+  color: #212b36 !important;
+}
+
+.left-sidebar .sidebar-nav .sidebar-item.active .has-arrow::after,
+.left-sidebar .sidebar-nav .sidebar-item.selected .has-arrow::after,
+.left-sidebar .sidebar-nav .mm-active .has-arrow::after {
+  border-color: #212b36 !important;
+}
+
+/* Top-level active/selected = light grey row, dark text (light theme) */
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.active > a.sidebar-link,
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.selected > a.sidebar-link,
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.current > a.sidebar-link {
+  background-color: #f0f0f0 !important;
+  color: #212b36 !important;
+}
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.active > a.sidebar-link .hide-menu,
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.selected > a.sidebar-link .hide-menu,
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.current > a.sidebar-link .hide-menu,
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.active > a.sidebar-link i,
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.selected > a.sidebar-link i,
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.current > a.sidebar-link i,
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.active > a.sidebar-link b,
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.selected > a.sidebar-link b {
+  color: #212b36 !important;
+}
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.active > a.sidebar-link.has-arrow::after,
+body:not(.sidebar-dark) #sidebarnav > .sidebar-item.selected > a.sidebar-link.has-arrow::after {
+  border-color: #212b36 !important;
+}
+
+/* Dark theme: top-level active item (e.g. planning, Project management) – blue pill + white text/icon */
+body.sidebar-dark #sidebarnav > .sidebar-item.active > a.sidebar-link,
+body.sidebar-dark #sidebarnav > .sidebar-item.selected > a.sidebar-link,
+body.sidebar-dark #sidebarnav > .sidebar-item.current > a.sidebar-link {
+  background-color: #F0EDED !important;
+  color: #ffffff !important;
+}
+body.sidebar-dark #sidebarnav > .sidebar-item.active > a.sidebar-link .hide-menu,
+body.sidebar-dark #sidebarnav > .sidebar-item.selected > a.sidebar-link .hide-menu,
+body.sidebar-dark #sidebarnav > .sidebar-item.current > a.sidebar-link .hide-menu,
+body.sidebar-dark #sidebarnav > .sidebar-item.active > a.sidebar-link i,
+body.sidebar-dark #sidebarnav > .sidebar-item.selected > a.sidebar-link i,
+body.sidebar-dark #sidebarnav > .sidebar-item.current > a.sidebar-link i {
+  color: #1e88e5 !important;
+}
+
+/* ----- Active sub-item / .sidebar-link.active: dark navy pill, white text (Bold “Default” style) ----- */
+.left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link,
+.left-sidebar .sidebar-nav .first-level .mm-active > a.sidebar-link,
+.left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.active > a.sidebar-link,
+.left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.selected > a.sidebar-link,
+.left-sidebar .sidebar-nav .second-level .sidebar-item.active > a.sidebar-link,
+.left-sidebar .sidebar-nav .second-level .sidebar-item.selected > a.sidebar-link,
+.left-sidebar .sidebar-nav a.sidebar-link.active.sidebar-sublink {
+  background-color: #212529 !important;
+  color: var(--sidebar-active-text, #fff) !important;
+  box-shadow: none;
+  border: none;
+  border-radius: var(--sidebar-radius, 12px) !important;
+}
+
+/* Dark theme: active pill uses light color #d5dae6 with dark text/icon */
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.active > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.selected > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .second-level .sidebar-item.active > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav .second-level .sidebar-item.selected > a.sidebar-link,
+body.sidebar-dark .left-sidebar .sidebar-nav a.sidebar-link.active.sidebar-sublink {
+  background-color: #d5dae6 !important;
+  color: #111827 !important;
+}
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.active > a.sidebar-link .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.selected > a.sidebar-link .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav .second-level .sidebar-item.active > a.sidebar-link .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav .second-level .sidebar-item.selected > a.sidebar-link .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav a.sidebar-link.active.sidebar-sublink .hide-menu,
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link i,
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link i,
+body.sidebar-dark .left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link i,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.active > a.sidebar-link i,
+body.sidebar-dark .left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.selected > a.sidebar-link i,
+body.sidebar-dark .left-sidebar .sidebar-nav .second-level .sidebar-item.active > a.sidebar-link i,
+body.sidebar-dark .left-sidebar .sidebar-nav .second-level .sidebar-item.selected > a.sidebar-link i,
+body.sidebar-dark .left-sidebar .sidebar-nav a.sidebar-link.active.sidebar-sublink i {
+  color: #111827 !important;
+}
+
+/* Parent main item (e.g. Reporting, Seeds) dark when a sub-item is active */
+.left-sidebar .sidebar-nav .sidebar-item:has(> ul .sidebar-item.active) > a.sidebar-link {
+  background-color: #212529 !important;
+  color: var(--sidebar-active-text, #fff) !important;
+  border-radius: var(--sidebar-radius, 12px) !important;
+}
+.left-sidebar .sidebar-nav .sidebar-item:has(> ul .sidebar-item.active) > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .sidebar-item:has(> ul .sidebar-item.active) > a.sidebar-link i {
+  color: var(--sidebar-active-text, #fff) !important;
+}
+.left-sidebar .sidebar-nav .sidebar-item:has(> ul .sidebar-item.active) > a.sidebar-link::before {
+  background-color: #fff !important;
+}
+.left-sidebar .sidebar-nav .sidebar-item:has(> ul .sidebar-item.active) > a.sidebar-link.has-arrow::after {
+  border-color: var(--sidebar-active-chevron, #42a5f5) !important;
+}
+.left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.active > a.sidebar-link::before,
+.left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.selected > a.sidebar-link::before,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link::before,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link::before,
+.left-sidebar .sidebar-nav .second-level .sidebar-item.active > a.sidebar-link::before,
+.left-sidebar .sidebar-nav .second-level .sidebar-item.selected > a.sidebar-link::before {
+  background-color: #fff !important;
+}
+
+.left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .first-level .mm-active > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.active > a.sidebar-link i,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.selected > a.sidebar-link i,
+.left-sidebar .sidebar-nav .first-level .sidebar-item.current > a.sidebar-link i,
+.left-sidebar .sidebar-nav .first-level .mm-active > a.sidebar-link i,
+.left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.active > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .sidebar-submenu .sidebar-item.active > a.sidebar-link i,
+.left-sidebar .sidebar-nav .second-level .sidebar-item.active > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .second-level .sidebar-item.active > a.sidebar-link i,
+.left-sidebar .sidebar-nav .second-level .sidebar-item.selected > a.sidebar-link .hide-menu,
+.left-sidebar .sidebar-nav .second-level .sidebar-item.selected > a.sidebar-link i {
+  color: var(--sidebar-active-text, #fff) !important;
+}
+
+/* Sub-item size already set above (0.875rem) – keep for specificity */
+
+/* Chevron: light grey when inactive (reference style) */
+.left-sidebar .sidebar-nav .has-arrow::after {
+  border-color: #9e9e9e !important;
+}
+
+.left-sidebar .sidebar-nav hr {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Legacy nav-small-cap (without .sidebar-section-title) – keep for any extra caps */
+.left-sidebar .nav-small-cap:not(.sidebar-section-title) {
+  color: var(--sidebar-section-color, #6c757d) !important;
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  padding: 14px 15px 8px !important;
+  margin-bottom: 4px !important;
+}
+.left-sidebar .nav-small-cap:not(.sidebar-section-title) i {
+  color: var(--sidebar-section-color, #6c757d) !important;
+}
+
+.left-sidebar .profile-text h4 {
+  color: #343a40 !important;
+}
+
+#sidebar-search-input {
+  background-color: #f2f4f8;
+  color: #343a40;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+}
+
+#sidebar-search-input::placeholder {
+  color: #6c757d;
+}
+
+#sidebar-search-input:focus {
+  background-color: #fff;
+  border-color: #1e88e5;
+  color: #343a40;
+}
+
+/* Generic validation highlight class used in quickRepo.js */
+.error-highlight {
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 0 1px rgba(231, 76, 60, 0.35);
+}
+
+/* QuickRepo reporting name: strong red border + red help message */
+#ListReportingForm #reponameListRepo.error-highlight {
+  border: 1px solid #e74c3c !important;
+}
+#ListReportingForm #reponameListRepo.error-highlight + .help-block,
+#ListReportingForm #reponameListRepo.error-highlight + .help-block li {
+  color: #e74c3c !important;
+  font-size: 0.8rem;
+}
+
+/* QuickRepo: only the invalid field (Reporting name) should be red; form.error must not style all controls */
+#ListReportingForm.error input:not(.error-highlight),
+#ListReportingForm.error select:not(.error-highlight),
+#ListReportingForm.error textarea:not(.error-highlight),
+#ListReportingForm.error .bootstrap-duallistbox-container,
+#ListReportingForm.error .bootstrap-duallistbox-container select,
+#ListReportingForm.error .form-group.error input,
+#ListReportingForm.error .form-group.error select,
+#ListReportingForm.error .form-group.error textarea {
+  border-color: inherit !important;
+  box-shadow: none !important;
+}
+
+/* ========== TEAMS block (exact image: dots, selected = light bg + faint border) ========== */
+.sidebar-teams .sidebar-section-title {
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+.sidebar-teams-list {
+  list-style: none;
+  padding: 0 10px 0 15px;
+  margin: 0 0 16px 0;
+}
+.sidebar-teams-list li {
+  margin-bottom: 2px;
+}
+.sidebar-teams-list .sidebar-team-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #343a40;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.sidebar-teams-list .sidebar-team-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.sidebar-team-dot-blue {
+  background-color: #1e88e5;
+}
+.sidebar-team-dot-red {
+  background-color: #fc4b6c;
+}
+.sidebar-teams-list .sidebar-team-icon-lock {
+  margin-right: 10px;
+  font-size: 0.875rem;
+  color: #9e9e9e;
+}
+.sidebar-teams-list .sidebar-team-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+.sidebar-teams-list .sidebar-team-item.selected,
+.sidebar-teams-list .sidebar-team-item.active {
+  background-color: var(--sidebar-team-selected-bg, #f8f9fa);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+}
+.sidebar-teams-list .sidebar-team-item.selected .sidebar-team-name,
+.sidebar-teams-list .sidebar-team-item.active .sidebar-team-name {
+  color: #343a40;
+  font-weight: 500;
+}
+.sidebar-teams-list .sidebar-team-item .sidebar-team-name {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #343a40;
+}
+
+/* Compact user profile at bottom of sidebar */
+.sidebar-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px 16px;
+  margin-top: auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+.sidebar-user-profile .profile-img {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+.sidebar-user-profile .profile-img img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+}
+.sidebar-user-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #343a40;
+  text-decoration: none;
+}
+.sidebar-user-name:hover {
+  color: #1e88e5;
+  text-decoration: none;
+}

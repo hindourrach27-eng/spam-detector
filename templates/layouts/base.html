@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/lg.png">
+
+    <title>
+        Diagnostic Spam - {% block title %}{% endblock %}
+    </title>
+
+    {% block stylesheets %}{% endblock stylesheets %}
+
+    <link href="/static/assets/css/fonts.css" rel="stylesheet">
+    <link href="/static/assets/css/style.min.css" rel="stylesheet">
+    <link href="/static/assets/css/sidebar-custom.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+    <div class="preloader">
+        <div class="lds-ripple">
+            <div class="lds-pos"></div>
+            <div class="lds-pos"></div>
+        </div>
+    </div>
+
+    <div id="main-wrapper">
+
+        {% include 'includes/navigation.html' %}
+
+        {% include 'includes/sidebar.html' %}
+
+        {% block content %}{% endblock content %}
+
+    </div>
+
+    {% include 'includes/aside-settings.html' %}
+
+    {% include 'includes/scripts.html' %}
+
+    {% block javascripts %}{% endblock javascripts %}
+
+</body>
+</html>

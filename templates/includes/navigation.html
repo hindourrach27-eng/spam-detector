@@ -1,0 +1,35 @@
+<header class="topbar">
+    <nav class="navbar top-navbar navbar-expand-md navbar-light">
+        <div class="navbar-header" data-logobg="skin6">
+            <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)">
+                <i class="ti-menu ti-close"></i>
+            </a>
+
+            <a class="navbar-brand" href="/">
+                <span class="logo-text">
+                    <img src="/static/assets/images/icon/logo2.png" class="dark-logo" alt="E Market Solutions" width="90" height="auto" style="max-height: 45px; object-fit: contain;" />
+                </span>
+            </a>
+
+            <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="ti-more"></i>
+            </a>
+        </div>
+
+        <div class="navbar-collapse collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto float-left">
+                <li class="nav-item">
+                    <a class="nav-link sidebartoggler d-none d-md-block waves-effect waves-dark" href="javascript:void(0)">
+                        <i class="ti-menu"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav float-right">
+                <li class="nav-item">
+                    <span class="nav-link text-inverse">{{ user_email }}</span>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>

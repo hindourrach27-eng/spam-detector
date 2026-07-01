@@ -1,0 +1,370 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Mes emails {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.css">
+{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="page-wrapper">
+    <div class="row page-titles">
+        <div class="col-md-12 col-12 align-self-center">
+            <h3 class="text-themecolor mb-0">Mes emails</h3>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('home_blueprint.emails_page') }}">Accueil</a></li>
+                <li class="breadcrumb-item active">Mes emails</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-md-6 col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Total Gmail</h6>
+                         <span id="collectedCount" class="badge badge-success">0 collectés</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Collectes</h6>
+                     <span id="totalCount" class="badge badge-secondary">0 disponibles</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-2">Collecte en masse</h6>
+                        <p class="text-muted" style="font-size: 0.9rem;">
+                            Récupère automatiquement jusqu'à 500 emails INBOX + 500 emails SPAM et les sauvegarde.
+                            Cette opération peut prendre plusieurs minutes.
+                        </p>
+                        <button type="button" class="btn btn-warning btn-rounded" id="collectAllBtn">
+                            Collecter tout automatiquement
+                        </button>
+
+                        <div id="collectAllProgressWrapper" class="mt-3" style="display: none;">
+                            <div class="progress" style="height: 25px;">
+                                <div id="collectAllProgressBar" class="progress-bar bg-info" role="progressbar" style="width: 0%;">
+                                    0%
+                                </div>
+                            </div>
+                            <p class="text-muted mt-2 mb-0" id="collectAllProgressText">En attente...</p>
+                        </div>
+
+                        <div id="collectAllMessages" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="emailForm">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                              <table id="emailsTable" class="table table-hover" style="width:100%">
+    <thead>
+        <tr>
+            <th style="width: 40px;">
+                <input type="checkbox" id="masterCheckbox">
+            </th>
+            <th>Label</th>
+            <th>Expediteur</th>
+            <th>Objet</th>
+            <th>Statut</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center flex-wrap" style="gap: 15px;">
+                            <span class="text-muted">Selectionnes : <strong class="text-themecolor" id="selectedCount">0</strong></span>
+                            <button type="button" class="btn btn-info btn-rounded" id="collectBtn" disabled>Collecter les emails selectionnes</button>
+                        </div>
+
+                        <div class="text-center mt-3" id="loading" style="display: none;">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2">Collecte en cours...</p>
+                        </div>
+
+                        <div id="messages" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'includes/footer.html' %}
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script src="/static/assets/libs/datatables/media/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.8/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/assets/js/pages/datatable/custom-datatable.js"></script>
+    <script>
+$(document).ready(function () {
+    const table = $('#emailsTable').DataTable({
+        ajax: {
+            url: '/emails/data',
+            dataSrc: function (json) {
+                $('#collectedCount').text(json.collected_count + ' collectés');
+                $('#totalCount').text(json.total_available + ' disponibles');
+                return json.data;
+            }
+        },
+        columns: [
+            {
+                data: 'msg_id',
+                orderable: false,
+                render: function (msg_id, type, row) {
+                    const disabled = row.is_collected ? 'disabled' : '';
+                    return `<input type="checkbox" class="email-checkbox" value="${msg_id}" ${disabled}>`;
+                }
+            },
+            {
+                data: 'label',
+                render: function (label) {
+                    return label === 'SPAM'
+                        ? '<span class="badge badge-danger">SPAM</span>'
+                        : '<span class="badge badge-info">INBOX</span>';
+                }
+            },
+            {
+                data: 'expediteur',
+                render: function (val) {
+                    return `<span class="text-truncate d-inline-block" style="max-width:200px;" title="${val}">${val}</span>`;
+                }
+            },
+            {
+                data: 'objet',
+                render: function (val) {
+                    return `<span class="text-truncate d-inline-block" style="max-width:250px;" title="${val}">${val}</span>`;
+                }
+            },
+            {
+                data: 'is_collected',
+                render: function (is_collected) {
+                    return is_collected
+                        ? '<span class="badge badge-success">Collecte</span>'
+                        : '<span class="badge badge-light">Disponible</span>';
+                }
+            }
+        ],
+        createdRow: function (row, data) {
+            $(row).attr('data-msg-id', data.msg_id);
+        },
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/fr-FR.json'
+        }
+    });
+
+    // Master checkbox toggles all enabled row checkboxes
+    $('#masterCheckbox').on('click', function () {
+        const checked = $(this).prop('checked');
+        $('#emailsTable tbody .email-checkbox:not(:disabled)').prop('checked', checked);
+    });
+});
+</script>
+<script>
+const masterCheckbox = document.getElementById('masterCheckbox');
+const selectedCountSpan = document.getElementById('selectedCount');
+const collectBtn = document.getElementById('collectBtn');
+const loading = document.getElementById('loading');
+const messagesDiv = document.getElementById('messages');
+
+function updateSelectedCount() {
+    const selected = document.querySelectorAll('.email-checkbox:checked').length;
+    selectedCountSpan.textContent = selected;
+    collectBtn.disabled = selected === 0;
+
+    const selectableCount = document.querySelectorAll('.email-checkbox:not(:disabled)').length;
+    masterCheckbox.checked = selectableCount > 0 && selected === selectableCount;
+}
+
+// Délégation d'événements : on écoute le tableau (qui existe toujours dans le DOM),
+// pas les checkboxes individuelles (créées plus tard par DataTables via AJAX)
+document.querySelector('#emailsTable').addEventListener('change', function (e) {
+    if (e.target.classList.contains('email-checkbox')) {
+        updateSelectedCount();
+    }
+});
+
+masterCheckbox.addEventListener('change', () => {
+    document.querySelectorAll('.email-checkbox:not(:disabled)').forEach(checkbox => {
+        checkbox.checked = masterCheckbox.checked;
+    });
+    updateSelectedCount();
+});
+
+collectBtn.addEventListener('click', async () => {
+    const selected = Array.from(document.querySelectorAll('.email-checkbox:checked'))
+        .map(checkbox => checkbox.value);
+
+    if (selected.length === 0) {
+        showMessage('Selectionnez au moins un email', 'danger');
+        return;
+    }
+
+    loading.style.display = 'block';
+    collectBtn.disabled = true;
+    messagesDiv.innerHTML = '';
+
+    try {
+        const response = await fetch('{{ url_for("home_blueprint.collect_emails") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message_ids: selected
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showMessage(data.message, 'success');
+
+            selected.forEach(msg_id => {
+                const row = document.querySelector(`[data-msg-id="${msg_id}"]`);
+                if (row) {
+                    const checkbox = row.querySelector('.email-checkbox');
+                    checkbox.checked = false;
+                    checkbox.disabled = true;
+                    const statusCell = row.querySelector('td:last-child');
+                    statusCell.innerHTML = '<span class="badge badge-success">Collecte</span>';
+                }
+            });
+
+            updateSelectedCount();
+
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showMessage(data.error, 'danger');
+        }
+    } catch (error) {
+        showMessage('Erreur: ' + error.message, 'danger');
+    } finally {
+        loading.style.display = 'none';
+        collectBtn.disabled = false;
+    }
+});
+
+function showMessage(message, type) {
+    const div = document.createElement('div');
+    div.className = `alert alert-${type}`;
+    div.textContent = message;
+    messagesDiv.appendChild(div);
+}
+
+updateSelectedCount();
+</script>
+
+<script>
+const collectAllBtn = document.getElementById('collectAllBtn');
+const progressWrapper = document.getElementById('collectAllProgressWrapper');
+const progressBar = document.getElementById('collectAllProgressBar');
+const progressText = document.getElementById('collectAllProgressText');
+const collectAllMessages = document.getElementById('collectAllMessages');
+
+let pollingInterval = null;
+
+function showCollectAllMessage(message, type) {
+    const div = document.createElement('div');
+    div.className = `alert alert-${type}`;
+    div.textContent = message;
+    collectAllMessages.appendChild(div);
+}
+
+function pollStatus() {
+    pollingInterval = setInterval(async () => {
+        try {
+            const response = await fetch('/collect-all/status');
+            const status = await response.json();
+
+            if (status.total > 0) {
+                const percent = Math.round((status.traites / status.total) * 100);
+                progressBar.style.width = percent + '%';
+                progressBar.textContent = percent + '%';
+                progressText.textContent = `${status.traites} / ${status.total} emails traités`;
+            } else {
+                progressText.textContent = 'Récupération de la liste des emails...';
+            }
+
+            if (status.termine) {
+                clearInterval(pollingInterval);
+                collectAllBtn.disabled = false;
+
+                if (status.erreur) {
+                    showCollectAllMessage('Erreur : ' + status.erreur, 'danger');
+                } else {
+                    showCollectAllMessage(
+                        `Collecte terminée : ${status.traites} email(s) traité(s) sur ${status.total}.`,
+                        'success'
+                    );
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                }
+            }
+        } catch (error) {
+            clearInterval(pollingInterval);
+            collectAllBtn.disabled = false;
+            showCollectAllMessage('Erreur lors du suivi de la progression : ' + error.message, 'danger');
+        }
+    }, 2000);
+}
+
+collectAllBtn.addEventListener('click', async () => {
+    collectAllBtn.disabled = true;
+    collectAllMessages.innerHTML = '';
+    progressWrapper.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressBar.textContent = '0%';
+    progressText.textContent = 'Démarrage...';
+
+    try {
+        const response = await fetch('/collect-all', { method: 'POST' });
+        const data = await response.json();
+
+        if (response.ok) {
+            pollStatus();
+        } else {
+            collectAllBtn.disabled = false;
+            showCollectAllMessage(data.error || 'Erreur inconnue', 'danger');
+        }
+    } catch (error) {
+        collectAllBtn.disabled = false;
+        showCollectAllMessage('Erreur : ' + error.message, 'danger');
+    }
+});
+</script>
+{% endblock javascripts %}

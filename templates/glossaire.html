@@ -1,0 +1,136 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Glossaire {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="page-wrapper">
+    <div class="row page-titles">
+        <div class="col-md-12 col-12 align-self-center">
+            <h3 class="text-themecolor mb-0">Glossaire</h3>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('home_blueprint.emails_page') }}">Accueil</a></li>
+                <li class="breadcrumb-item active">Glossaire</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <div class="card">
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-12">
+                        <h5 class="card-title">Comprendre les resultats du diagnostic</h5>
+                        <p class="text-muted">
+                            Cette page explique en langage simple les termes techniques
+                            utilises dans les rapports de diagnostic spam.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-12 mb-3">
+                        <h6><span class="badge badge-success">SPF</span></h6>
+                        <p class="mb-0">
+                            Le SPF (Sender Policy Framework) verifie que l'email a bien ete
+                            envoye depuis un serveur autorise par le proprietaire du domaine.
+                            C'est comme verifier que la voiture de livraison appartient
+                            vraiment a l'entreprise dont elle porte le logo.
+                            <strong>SPF valide</strong> = bon signal de confiance.
+                        </p>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                        <h6><span class="badge badge-success">DKIM</span></h6>
+                        <p class="mb-0">
+                            Le DKIM (DomainKeys Identified Mail) ajoute une signature numerique
+                            a l'email, comme un sceau de cire sur une lettre. Si quelqu'un
+                            modifie le contenu en chemin, la signature ne correspond plus,
+                            ce qui revele une falsification.
+                        </p>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                        <h6><span class="badge badge-success">DMARC</span></h6>
+                        <p class="mb-0">
+                            Le DMARC s'appuie sur SPF et DKIM pour dire aux services email
+                            (Gmail, Outlook...) quoi faire si un email echoue ces verifications :
+                            le bloquer, le mettre en spam, ou le laisser passer quand meme.
+                            C'est la regle de decision finale.
+                        </p>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                        <h6><span class="badge badge-danger">Phishing</span></h6>
+                        <p class="mb-0">
+                            Tentative de voler des informations sensibles (mots de passe,
+                            numeros de carte bancaire) en se faisant passer pour une entite
+                            de confiance. Exemple : un faux email "votre compte a ete bloque,
+                            cliquez ici pour le reactiver".
+                        </p>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                        <h6><span class="badge badge-warning">Spoofing</span></h6>
+                        <p class="mb-0">
+                            Usurpation d'identite : le nom affiche dans l'email (ex: "PayPal")
+                            ne correspond pas au domaine reel de l'expediteur
+                            (ex: paypal-secure-update.ru). C'est se faire passer pour
+                            quelqu'un d'autre.
+                        </p>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                        <h6><span class="badge badge-danger">Scam</span></h6>
+                        <p class="mb-0">
+                            Arnaque financiere directe : promesse de gain d'argent facile,
+                            heritage inattendu, investissement miracle. Le but est de pousser
+                            la victime a envoyer de l'argent ou des informations bancaires.
+                        </p>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                        <h6><span class="badge badge-secondary">Bulk</span></h6>
+                        <p class="mb-0">
+                            Envoi de masse non personnalise, comme une newsletter generique
+                            envoyee a des milliers de destinataires sans adaptation
+                            individuelle. Pas forcement malveillant, mais souvent classe
+                            en spam si trop frequent ou trop promotionnel.
+                        </p>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                        <h6>Score de spam</h6>
+                        <p class="mb-0">
+                            Un chiffre de 0 a 100 qui resume le niveau de risque global :
+                            <span class="badge badge-success">0-39</span> probablement legitime,
+                            <span class="badge badge-warning">40-69</span> suspect,
+                            <span class="badge badge-danger">70-100</span> probablement spam.
+                            Ce n'est pas une verite absolue, mais une estimation a prendre
+                            comme indice.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Vous voulez tester une offre maintenant ?</h6>
+                <a href="{{ url_for('home_blueprint.simulateur_page') }}" class="btn btn-info btn-rounded">
+                    Aller au simulateur
+                </a>
+            </div>
+        </div>
+        {% include 'includes/footer.html' %}
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}

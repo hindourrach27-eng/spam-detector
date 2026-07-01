@@ -1,0 +1,353 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Simulateur {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="page-wrapper">
+    <div class="row page-titles">
+        <div class="col-md-12 col-12 align-self-center">
+            <h3 class="text-themecolor mb-0">Simulateur d'offre</h3>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('home_blueprint.emails_page') }}">Accueil</a></li>
+                <li class="breadcrumb-item active">Simulateur</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Tester une offre avant envoi</h5>
+                        <p class="text-muted">
+                            Entrez le domaine d'expedition prevu et le contenu de votre offre.
+                            L'IA donne un diagnostic en direct (verdict, score, recommandations),
+                            sans avoir besoin d'envoyer reellement l'email.
+                        </p>
+
+                        <form id="simulateurForm">
+                            <div class="form-group">
+                                <label for="domaine"><strong>Domaine d'expedition</strong> <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="domaine" placeholder="ex: monentreprise.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="nom_affiche"><strong>Nom affiche (From)</strong> (optionnel)</label>
+                                <input type="text" class="form-control" id="nom_affiche" placeholder="ex: PayPal, Mon Entreprise">
+                                <small class="form-text text-muted">
+                                    Le nom qui apparaitra dans la boite de reception du destinataire.
+                                    Si laisse vide, le domaine sera utilise comme nom affiche.
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sujet"><strong>Sujet de l'email</strong> (optionnel)</label>
+                                <input type="text" class="form-control" id="sujet" placeholder="ex: Offre speciale -50%">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="description_offre"><strong>Description de l'offre / contenu de l'email</strong> <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="description_offre" rows="5" placeholder="Decrivez le contenu de votre campagne..." required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="code_html"><strong>Code source HTML de l'offre</strong> <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="code_html" rows="6" placeholder="Collez ici le code HTML complet de votre email (View Source ou export depuis votre outil emailing)..." required style="font-family: monospace; font-size: 0.85rem;"></textarea>
+                                <small class="form-text text-muted">
+                                    Permet de verifier que le code ne contient pas de texte cache
+                                    (technique parfois presente par erreur dans des templates).
+                                </small>
+                            </div>
+
+                            <label class="d-block mb-2"><strong>Authentification simulee</strong></label>
+                            <div class="auth-grid mb-3">
+                                <div class="card auth-toggle-card" id="card_spf">
+                                    <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                                        <span>SPF configure</span>
+                                        <label class="mon-switch">
+                                            <input type="checkbox" id="spf_ok">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="card auth-toggle-card" id="card_dkim">
+                                    <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                                        <span>DKIM configure</span>
+                                        <label class="mon-switch">
+                                            <input type="checkbox" id="dkim_ok">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="card auth-toggle-card" id="card_dmarc">
+                                    <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                                        <span>DMARC configure</span>
+                                        <label class="mon-switch">
+                                            <input type="checkbox" id="dmarc_ok">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-info btn-rounded" id="analyserBtn">
+                                Analyser avec l'IA
+                            </button>
+                        </form>
+
+                        <div class="text-center mt-4" id="loadingSpinner" style="display: none;">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2 text-muted">
+                                Analyse en cours... cela peut prendre jusqu'a 10 minutes si le modele
+                                doit se recharger en memoire. Merci de patienter.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="htmlCheckWrapper" style="display: none;">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Verification technique du HTML</h5>
+                        <p class="text-muted" style="font-size: 0.85rem;">
+                            Verification deterministe (sans IA) du code source, pour detecter
+                            d'eventuelles techniques de texte cache.
+                        </p>
+                        <div id="htmlCheckResult"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="resultatWrapper" style="display: none;">
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Score de spam</h6>
+                        <h2 id="resScore" class="text-success">-</h2>
+                        <p id="resScoreExplication" class="text-muted mb-0" style="font-size: 0.8rem;"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Verdict</h6>
+                        <span id="resVerdict" class="badge" style="font-size: 1.1rem;">-</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted">Labels detectes</h6>
+                        <div id="resLabels">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Elements suspects</h5>
+                        <ul id="resElements" class="mb-0"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Recommandation</h5>
+                        <p id="resRecommendation" class="mb-0">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'includes/footer.html' %}
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<style>
+.auth-toggle-card {
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+.auth-toggle-card.active {
+    border-color: #26c6da;
+    box-shadow: 0 2px 8px rgba(38, 198, 218, 0.25);
+}
+
+.auth-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+@media (max-width: 768px) {
+    .auth-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.mon-switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+    flex-shrink: 0;
+}
+.mon-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.mon-switch .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    border-radius: 24px;
+    transition: background-color 0.2s;
+}
+.mon-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+.mon-switch input:checked + .slider {
+    background-color: #26c6da;
+}
+.mon-switch input:checked + .slider:before {
+    transform: translateX(22px);
+}
+</style>
+<script>
+const simulateurForm = document.getElementById('simulateurForm');
+const analyserBtn = document.getElementById('analyserBtn');
+const loadingSpinner = document.getElementById('loadingSpinner');
+const resultatWrapper = document.getElementById('resultatWrapper');
+const htmlCheckWrapper = document.getElementById('htmlCheckWrapper');
+
+['spf', 'dkim', 'dmarc'].forEach(function (champ) {
+    const input = document.getElementById(champ + '_ok');
+    const card = document.getElementById('card_' + champ);
+    input.addEventListener('change', function () {
+        card.classList.toggle('active', input.checked);
+    });
+});
+
+simulateurForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const domaine = document.getElementById('domaine').value.trim();
+    const nom_affiche = document.getElementById('nom_affiche').value.trim();
+    const sujet = document.getElementById('sujet').value.trim();
+    const description_offre = document.getElementById('description_offre').value.trim();
+    const code_html = document.getElementById('code_html').value.trim();
+    const spf_ok = document.getElementById('spf_ok').checked;
+    const dkim_ok = document.getElementById('dkim_ok').checked;
+    const dmarc_ok = document.getElementById('dmarc_ok').checked;
+
+    if (!domaine || !description_offre || !code_html) {
+        toastr.error("Domaine, description de l'offre et code HTML sont obligatoires");
+        return;
+    }
+
+    analyserBtn.disabled = true;
+    loadingSpinner.style.display = 'block';
+    resultatWrapper.style.display = 'none';
+    htmlCheckWrapper.style.display = 'none';
+
+    try {
+        const response = await fetch('{{ url_for("home_blueprint.simulateur_analyser") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ domaine, nom_affiche, sujet, description_offre, code_html, spf_ok, dkim_ok, dmarc_ok })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            afficherVerificationHtml(data.problemes_html || []);
+            afficherResultat(data.resultat);
+            toastr.success('Analyse terminee');
+        } else {
+            toastr.error(data.error || 'Erreur inconnue');
+        }
+    } catch (error) {
+        toastr.error('Erreur : ' + error.message);
+    } finally {
+        analyserBtn.disabled = false;
+        loadingSpinner.style.display = 'none';
+    }
+});
+
+function afficherVerificationHtml(problemes) {
+    const htmlCheckResult = document.getElementById('htmlCheckResult');
+
+    if (problemes.length === 0) {
+        htmlCheckResult.innerHTML = '<div class="alert alert-success mb-0">✅ Aucune technique de texte cache detectee dans le code HTML.</div>';
+    } else {
+        const liste = problemes.map(p => `<li>${p}</li>`).join('');
+        htmlCheckResult.innerHTML = `
+            <div class="alert alert-danger mb-0">
+                ⚠️ ${problemes.length} probleme(s) detecte(s) dans le code HTML :
+                <ul class="mb-0 mt-2">${liste}</ul>
+            </div>
+        `;
+    }
+
+    htmlCheckWrapper.style.display = 'flex';
+}
+
+function afficherResultat(resultat) {
+    const score = resultat.score ?? 0;
+    const verdict = resultat.verdict ?? 'inconnu';
+
+    const resScore = document.getElementById('resScore');
+    resScore.textContent = score + '/100';
+    resScore.className = score >= 70 ? 'text-danger' : (score >= 40 ? 'text-warning' : 'text-success');
+    document.getElementById('resScoreExplication').textContent = resultat.score_explication || '';
+
+    const resVerdict = document.getElementById('resVerdict');
+    resVerdict.textContent = verdict.toUpperCase();
+    resVerdict.className = 'badge ' + (verdict === 'spam' ? 'badge-danger' : 'badge-success');
+
+    const labels = [];
+    if (resultat.label_phishing) labels.push('<span class="badge badge-danger mr-1">Phishing</span>');
+    if (resultat.label_spoofing) labels.push('<span class="badge badge-warning mr-1">Spoofing</span>');
+    if (resultat.label_scam) labels.push('<span class="badge badge-danger mr-1">Scam</span>');
+    if (resultat.label_bulk) labels.push('<span class="badge badge-secondary mr-1">Bulk</span>');
+    document.getElementById('resLabels').innerHTML = labels.length ? labels.join('') : '<span class="badge badge-success">Aucun</span>';
+
+    const elements = resultat.harmful_elements || [];
+    const resElements = document.getElementById('resElements');
+    resElements.innerHTML = elements.length
+        ? elements.map(el => `<li>${el}</li>`).join('')
+        : '<li class="text-muted">Aucun element suspect detecte</li>';
+
+    document.getElementById('resRecommendation').textContent = resultat.recommendation || 'Aucune recommandation particuliere.';
+
+    resultatWrapper.style.display = 'flex';
+}
+</script>
+{% endblock javascripts %}

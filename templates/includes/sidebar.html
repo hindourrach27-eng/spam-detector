@@ -1,0 +1,78 @@
+<aside class="left-sidebar sidebar" data-sidebarbg="skin1">
+    <div class="scroll-sidebar">
+
+        <div class="sidebar-top mt-3">
+            <a href="#" class="sidebar-profile-top">
+                <div class="sidebar-profile-meta">
+                    <div class="sidebar-profile-name text-capitalize">{{ user_email }}</div>
+                    <div class="sidebar-profile-subtitle">Bienvenue</div>
+                </div>
+            </a>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul id="sidebarnav" style="width: 100%;">
+                <li class="nav-small-cap sidebar-section-title">MENU</li>
+
+                <li class="sidebar-item">
+                    <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)"
+                       aria-expanded="false">
+                        <i class="mdi mdi-gauge" style="font-size: 1.1rem;"></i>
+                        <span class="hide-menu text-inverse" style="font-size: 1.4rem;font-weight: normal!important;">Diagnostic Spam</span>
+                    </a>
+                    <ul aria-expanded="false" class="collapse first-level sidebar-submenu">
+
+                        <li class="sidebar-item">
+                            <a href="{{ url_for('home_blueprint.emails_page') }}" class="sidebar-link sidebar-sublink">
+                                <i class="ti-email" style="font-size: 1rem;color: #FFFFFF;"></i>
+                                <b class="hide-menu" style="font-size: 1rem;font-weight: normal!important;"> Mes emails </b>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="{{ url_for('home_blueprint.collected_page') }}" class="sidebar-link sidebar-sublink">
+                                <i class="ti-check-box" style="font-size: 1rem;color: #FFFFFF;"></i>
+                                <b class="hide-menu" style="font-size: 1rem;font-weight: normal!important;"> Emails collectés </b>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="{{ url_for('home_blueprint.simulateur_page') }}" class="sidebar-link sidebar-sublink">
+                                <i class="ti-rocket" style="font-size: 1rem;color: #FFFFFF;"></i>
+                                <b class="hide-menu" style="font-size: 1rem;font-weight: normal!important;"> Simulateur </b>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="{{ url_for('home_blueprint.simulateur_historique') }}" class="sidebar-link sidebar-sublink">
+                                <i class="ti-time" style="font-size: 1rem;color: #FFFFFF;"></i>
+                                <b class="hide-menu" style="font-size: 1rem;font-weight: normal!important;"> Historique </b>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="{{ url_for('home_blueprint.statistiques_page') }}" class="sidebar-link sidebar-sublink">
+                                <i class="ti-bar-chart" style="font-size: 1rem;color: #FFFFFF;"></i>
+                                <b class="hide-menu" style="font-size: 1rem;font-weight: normal!important;"> Statistiques </b>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="{{ url_for('home_blueprint.glossaire_page') }}" class="sidebar-link sidebar-sublink">
+                                <i class="ti-book" style="font-size: 1rem;color: #FFFFFF;"></i>
+                                <b class="hide-menu" style="font-size: 1rem;font-weight: normal!important;"> Glossaire </b>
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+
+    <div class="sidebar-footer">
+        <a href="{{ url_for('home_blueprint.logout') }}" class="link" data-toggle="tooltip" title="Déconnexion"><i
+                class="mdi mdi-power"></i></a>
+    </div>
+</aside>

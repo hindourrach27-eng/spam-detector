@@ -1,0 +1,108 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Historique des simulations {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="page-wrapper">
+    <div class="row page-titles">
+        <div class="col-md-5 col-12 align-self-center">
+            <h3 class="text-themecolor mb-0">Historique des simulations</h3>
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('home_blueprint.simulateur_page') }}">Simulateur</a></li>
+                <li class="breadcrumb-item active">Historique</li>
+            </ol>
+        </div>
+        <div class="col-md-7 col-12 align-self-center text-md-right">
+            <a href="{{ url_for('home_blueprint.simulateur_page') }}" class="btn btn-info btn-rounded">Nouvelle simulation</a>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+
+                        {% if simulations|length == 0 %}
+                        <p class="text-muted mb-0">
+                            Aucune simulation enregistree pour le moment.
+                            <a href="{{ url_for('home_blueprint.simulateur_page') }}">Lancez votre premiere analyse</a>.
+                        </p>
+                        {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Domaine</th>
+                                        <th>Nom affiche</th>
+                                        <th>Sujet</th>
+                                        <th>Score</th>
+                                        <th>Verdict</th>
+                                        <th>Labels</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for simu in simulations %}
+                                    <tr style="cursor: pointer;" onclick="window.location.href='{{ url_for('home_blueprint.simulateur_historique_detail', simulation_id=simu.id) }}'">
+                                        <td>{{ simu.date_creation[:16] if simu.date_creation else '-' }}</td>
+                                        <td>{{ simu.domaine or '-' }}</td>
+                                        <td>{{ simu.nom_affiche or '-' }}</td>
+                                        <td>
+                                            <span class="text-truncate d-inline-block" style="max-width:200px;" title="{{ simu.sujet }}">
+                                                {{ simu.sujet or '-' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if simu.score is not none and simu.score >= 70 %}
+                                            <span class="text-danger font-weight-bold">{{ simu.score }}/100</span>
+                                            {% elif simu.score is not none and simu.score >= 40 %}
+                                            <span class="text-warning font-weight-bold">{{ simu.score }}/100</span>
+                                            {% elif simu.score is not none %}
+                                            <span class="text-success font-weight-bold">{{ simu.score }}/100</span>
+                                            {% else %}
+                                            -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if simu.verdict == 'spam' %}
+                                            <span class="badge badge-danger">SPAM</span>
+                                            {% elif simu.verdict == 'legitime' %}
+                                            <span class="badge badge-success">LEGITIME</span>
+                                            {% else %}
+                                            <span class="badge badge-secondary">{{ simu.verdict or '-' }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if simu.label_phishing %}<span class="badge badge-danger mr-1">Phishing</span>{% endif %}
+                                            {% if simu.label_spoofing %}<span class="badge badge-warning mr-1">Spoofing</span>{% endif %}
+                                            {% if simu.label_scam %}<span class="badge badge-danger mr-1">Scam</span>{% endif %}
+                                            {% if simu.label_bulk %}<span class="badge badge-secondary mr-1">Bulk</span>{% endif %}
+                                            {% if not simu.label_phishing and not simu.label_spoofing and not simu.label_scam and not simu.label_bulk %}
+                                            <span class="badge badge-light">Aucun</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include 'includes/footer.html' %}
+
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block javascripts %}{% endblock javascripts %}
