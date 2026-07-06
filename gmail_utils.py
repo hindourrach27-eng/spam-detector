@@ -32,11 +32,11 @@ def refresh_credentials(creds):
         print(f"❌ Erreur rafraîchissement : {e}")
         return None
 
-def get_authorization_url():
+def get_authorization_url(redirect_uri=REDIRECT_URI):
     flow = Flow.from_client_secrets_file(
         CREDENTIALS_FILE,
         scopes=SCOPES,
-        redirect_uri=REDIRECT_URI
+        redirect_uri=redirect_uri
     )
 
     # Générer code_verifier
@@ -56,11 +56,11 @@ def get_authorization_url():
 
     return auth_url, state, code_verifier
 
-def credentials_from_auth_code(code, code_verifier):
+def credentials_from_auth_code(code, code_verifier, redirect_uri=REDIRECT_URI):
     flow = Flow.from_client_secrets_file(
         CREDENTIALS_FILE,
         scopes=SCOPES,
-        redirect_uri=REDIRECT_URI
+        redirect_uri=redirect_uri
     )
     flow.fetch_token(
         code=code,

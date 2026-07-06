@@ -20,6 +20,7 @@ from database import (
     save_simulation, get_simulations, get_simulation_by_id,
     get_stats_heuristique, get_stats_simulations ,vider_simulations
 )
+from app.home.access import get_current_user
 from spam_analyzer import SpamAnalyzer
 from rapport_pdf import generer_rapport_pdf
 
@@ -45,20 +46,23 @@ heuristic_status = {
 def index():
     if 'user_email' in session:
         return redirect(url_for('home_blueprint.emails_page'))
-    return redirect(url_for('home_blueprint.login_page'))
+    return render_template('accueil.html')
 
 @home_blueprint.route('/login')
 def login_page():
     try:
-        auth_url, state, code_verifier = get_authorization_url()
+        redirect_uri = request.host_url.rstrip('/') + '/auth/callback'
+        auth_url, state, code_verifier = get_authorization_url(redirect_uri=redirect_uri)
         session['oauth_state'] = state
         session['code_verifier'] = code_verifier
+        session['oauth_redirect_uri'] = redirect_uri
         return redirect(auth_url)
     except FileNotFoundError as e:
         return f"❌ Erreur : {e}", 400
     except Exception as e:
         print(f"❌ Erreur login : {e}")
         return f"❌ Erreur lors de la connexion : {e}", 500
+
 
 @home_blueprint.route('/auth/callback')
 def auth_callback():
@@ -69,9 +73,10 @@ def auth_callback():
             return "❌ Code d'autorisation manquant", 400
 
         code_verifier = session.get('code_verifier')
+        redirect_uri = session.get('oauth_redirect_uri', 'http://localhost:5000/auth/callback')
 
         try:
-            creds_dict = credentials_from_auth_code(code, code_verifier)
+            creds_dict = credentials_from_auth_code(code, code_verifier, redirect_uri=redirect_uri)
         except Exception as e:
             print(f"❌ Erreur échange code : {e}")
             return f"❌ Erreur lors de l'authentification Google : {e}", 500
@@ -469,7 +474,7 @@ def analyse_email(email_id):
 @home_blueprint.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('home_blueprint.login_page'))
+    return redirect(url_for('home_blueprint.index'))
 
 @home_blueprint.route('/api/user')
 def api_user():
@@ -485,13 +490,12 @@ def api_user():
 def simulateur_page():
     """Affiche le formulaire du simulateur d'offre (analyse IA en direct,
     sans passer par un email deja collecte en base)."""
-    if 'user_email' not in session:
-        return redirect(url_for('home_blueprint.login_page'))
+    current_user = get_current_user(session)
     return render_template(
         'simulateur.html',
-        user_email=session['user_email']
+        user_email=current_user['email'],
+        mode=current_user['mode']
     )
-
 
 @home_blueprint.route('/simulateur/analyser', methods=['POST'])
 def simulateur_analyser():
@@ -501,8 +505,7 @@ def simulateur_analyser():
     Ne touche a aucune donnee existante en base (pas de email_id, pas de
     sauvegarde dans la table emails) -- c'est une simulation isolee.
     """
-    if 'user_email' not in session:
-        return jsonify({'error': 'Non authentifié'}), 401
+    current_user = get_current_user(session)
 
     try:
         data = request.get_json()
@@ -571,7 +574,7 @@ def simulateur_analyser():
             'dkim_ok': dkim_ok,
             'dmarc_ok': dmarc_ok
         }
-        save_simulation(session['user_id'], donnees_formulaire, resultat_ia)
+        save_simulation(current_user['id_user'], donnees_formulaire, resultat_ia)
 
         return jsonify({
             'success': True,
@@ -589,46 +592,44 @@ def simulateur_analyser():
 def glossaire_page():
     """Page statique expliquant les termes techniques du diagnostic spam
     en langage accessible (SPF, DKIM, DMARC, Spoofing, Phishing, etc.)."""
-    if 'user_email' not in session:
-        return redirect(url_for('home_blueprint.login_page'))
+    current_user = get_current_user(session)
     return render_template(
         'glossaire.html',
-        user_email=session['user_email']
+        user_email=current_user['email'],
+        mode=current_user['mode']
     )
 
 @home_blueprint.route('/simulateur/historique')
 def simulateur_historique():
     """Affiche l'historique des simulations passees de l'utilisateur,
     sous forme de tableau simple."""
-    if 'user_email' not in session:
-        return redirect(url_for('home_blueprint.login_page'))
+    current_user = get_current_user(session)
 
-    simulations = get_simulations(session['user_id'])
+    simulations = get_simulations(current_user['id_user'])
 
     return render_template(
         'simulateur_historique.html',
-        user_email=session['user_email'],
+        user_email=current_user['email'],
+        mode=current_user['mode'],
         simulations=simulations
     )
 
 @home_blueprint.route('/simulateur/historique/<int:simulation_id>')
 def simulateur_historique_detail(simulation_id):
     """Affiche le detail complet d'une simulation passee."""
-    if 'user_email' not in session:
-        return redirect(url_for('home_blueprint.login_page'))
+    current_user = get_current_user(session)
 
-    simulation = get_simulation_by_id(simulation_id, session['user_id'])
+    simulation = get_simulation_by_id(simulation_id, current_user['id_user'])
 
     if not simulation:
         return "Simulation introuvable", 404
 
     return render_template(
         'simulateur_historique_detail.html',
-        user_email=session['user_email'],
+        user_email=current_user['email'],
+        mode=current_user['mode'],
         simulation=simulation
     )
-
-
 @home_blueprint.route('/statistiques')
 def statistiques_page():
     """
@@ -639,15 +640,15 @@ def statistiques_page():
     car elles representent des choses fondamentalement differentes
     (vrais emails avec verite terrain vs cas fictifs testes par l'utilisateur).
     """
-    if 'user_email' not in session:
-        return redirect(url_for('home_blueprint.login_page'))
+    current_user = get_current_user(session)
 
     stats_heuristique = get_stats_heuristique()
-    stats_simulations = get_stats_simulations(session['user_id'])
+    stats_simulations = get_stats_simulations(current_user['id_user'])
 
     return render_template(
         'statistiques.html',
-        user_email=session['user_email'],
+        user_email=current_user['email'],
+        mode=current_user['mode'],
         stats_heuristique=stats_heuristique,
         stats_simulations=stats_simulations
     )
@@ -659,8 +660,6 @@ def simulateur_rapport():
     (passees en JSON depuis la page simulateur), l'envoie au navigateur
     puis le supprime du serveur immediatement apres.
     """
-    if 'user_email' not in session:
-        return jsonify({'error': 'Non authentifie'}), 401
 
     try:
         data = request.get_json()
@@ -697,11 +696,10 @@ def simulateur_historique_rapport(simulation_id):
     Genere un rapport PDF a partir d'une simulation passee (depuis l'historique),
     l'envoie au navigateur puis le supprime du serveur immediatement apres.
     """
-    if 'user_email' not in session:
-        return redirect(url_for('home_blueprint.login_page'))
+    current_user = get_current_user(session)
 
     try:
-        simulation = get_simulation_by_id(simulation_id, session['user_id'])
+        simulation = get_simulation_by_id(simulation_id, current_user['id_user'])
 
         if not simulation:
             return "Simulation introuvable", 404
@@ -730,12 +728,11 @@ def simulateur_historique_rapport(simulation_id):
 
 @home_blueprint.route('/simulateur/historique/vider', methods=['POST'])
 def simulateur_historique_vider():
-    """Supprime toutes les simulations de l'utilisateur connecte."""
-    if 'user_email' not in session:
-        return jsonify({'error': 'Non authentifie'}), 401
+    """Supprime toutes les simulations de l'utilisateur (connecte ou anonyme)."""
+    current_user = get_current_user(session)
 
     try:
-        vider_simulations(session['user_id'])
+        vider_simulations(current_user['id_user'])
         return jsonify({'success': True}), 200
     except Exception as e:
         print(f"❌ Erreur simulateur_historique_vider : {e}")

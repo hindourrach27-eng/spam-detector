@@ -125,6 +125,27 @@ def get_or_create_user(email):
     conn.close()
     return user_id
 
+def get_or_create_anonymous_user(anon_token):
+    """Cree (ou recupere) un utilisateur 'anonyme' rattache a un token de
+    session Flask, pour permettre l'usage du simulateur/historique sans
+    connexion Google. Reutilise la table users existante avec un email
+    synthetique unique (jamais un vrai email Google), pour ne pas avoir
+    a modifier le schema ni les fonctions existantes (save_simulation,
+    get_simulations, etc. qui prennent juste un id_user)."""
+    email_synthetique = f"anon-{anon_token}@local.session"
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT id_user FROM users WHERE email = ?', (email_synthetique,))
+    result = cursor.fetchone()
+    if result:
+        user_id = result[0]
+    else:
+        cursor.execute('INSERT INTO users (email) VALUES (?)', (email_synthetique,))
+        user_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return user_id
+
 def update_user_token(email, token_dict):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()

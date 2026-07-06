@@ -1,0 +1,43 @@
+{% extends "layouts/base-fullscreen.html" %}
+
+{% block title %} Accueil {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+    <div class="error-box">
+        <div class="error-body text-center">
+            <img src="/static/assets/images/icon/logo2.png" alt="E Market Solutions" style="max-height: 60px; object-fit: contain; margin-bottom: 25px;" />
+            <h3 class="text-uppercase error-subtitle">Diagnostic Spam</h3>
+            <p class="text-muted mt-2 mb-4">Choisissez comment vous souhaitez accéder à l'application.</p>
+
+            <div class="row justify-content-center">
+                <div class="col-md-5 mb-3">
+                    <a href="{{ url_for('home_blueprint.login_page') }}"
+                       class="btn btn-primary btn-rounded btn-block waves-effect waves-light">
+                        Se connecter avec Google
+                    </a>
+                    <p class="text-muted mt-2" style="font-size: 0.85rem;">
+                        Accès complet : Mes emails, Collecte, Analyse heuristique, Simulateur, Historique, Statistiques, Glossaire
+                    </p>
+                </div>
+
+                <div class="col-md-5 mb-3">
+                    <a href="{{ url_for('home_blueprint.simulateur_page') }}"
+                       class="btn btn-outline-secondary btn-rounded btn-block waves-effect waves-light">
+                        Accéder sans connexion
+                    </a>
+                    <p class="text-muted mt-2" style="font-size: 0.85rem;">
+                        Accès limité : Simulateur, Historique, Statistiques, Glossaire
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+    <script>
+        $(".preloader").fadeOut();
+    </script>
+{% endblock javascripts %}

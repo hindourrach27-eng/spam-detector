@@ -4,8 +4,13 @@
         <div class="sidebar-top mt-3">
             <a href="#" class="sidebar-profile-top">
                 <div class="sidebar-profile-meta">
-                    <div class="sidebar-profile-name text-capitalize">{{ user_email }}</div>
-                    <div class="sidebar-profile-subtitle">Bienvenue</div>
+                    {% if user_email %}
+                        <div class="sidebar-profile-name text-capitalize">{{ user_email }}</div>
+                        <div class="sidebar-profile-subtitle">Bienvenue</div>
+                    {% else %}
+                        <div class="sidebar-profile-name text-capitalize">Mode invité</div>
+                        <div class="sidebar-profile-subtitle">Accès sans connexion</div>
+                    {% endif %}
                 </div>
             </a>
         </div>
@@ -22,6 +27,7 @@
                     </a>
                     <ul aria-expanded="false" class="collapse first-level sidebar-submenu">
 
+                        {% if mode|default('google') == 'google' %}
                         <li class="sidebar-item">
                             <a href="{{ url_for('home_blueprint.emails_page') }}" class="sidebar-link sidebar-sublink">
                                 <i class="ti-email" style="font-size: 1rem;color: #FFFFFF;"></i>
@@ -35,6 +41,7 @@
                                 <b class="hide-menu" style="font-size: 1rem;font-weight: normal!important;"> Emails collectés </b>
                             </a>
                         </li>
+                        {% endif %}
 
                         <li class="sidebar-item">
                             <a href="{{ url_for('home_blueprint.simulateur_page') }}" class="sidebar-link sidebar-sublink">
