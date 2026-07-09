@@ -2,42 +2,692 @@
 
 {% block title %} Accueil {% endblock %}
 
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --bg: #ffffff;
+        --navy: #1c3b6b;
+        --navy-soft: #eef4fc;
+        --orange: #f2811c;
+        --orange-soft: #fef4e9;
+        --text: #1b2430;
+        --muted: #64748b;
+        --mono-dim: #9aa7bd;
+        --line: #e7ebf2;
+
+        --font-display: 'Space Grotesk', sans-serif;
+        --font-body: 'Inter', sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body { background: var(--bg); }
+
+    .site {
+        font-family: var(--font-body);
+        color: var(--text);
+        background: var(--bg);
+        scroll-snap-type: y proximity;
+    }
+
+    /* ---------- top bar ---------- */
+    .topbar {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 5vw;
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .topbar.is-scrolled {
+        border-color: var(--line);
+        box-shadow: 0 6px 20px -14px rgba(28, 59, 107, 0.3);
+    }
+
+    .topbar-logo { height: 34px; object-fit: contain; display: block; }
+
+    .topbar-nav { display: flex; gap: 30px; align-items: center; }
+
+    .topbar-nav a {
+        font-size: 0.86rem;
+        font-weight: 500;
+        color: var(--text);
+        text-decoration: none;
+        opacity: 0.8;
+        transition: opacity 0.15s ease, color 0.15s ease;
+    }
+
+    .topbar-nav a:hover { opacity: 1; color: var(--navy); }
+
+    .topbar-nav a.is-active:not(.cta) {
+        color: var(--navy);
+        opacity: 1;
+        position: relative;
+    }
+
+    .topbar-nav a.is-active:not(.cta)::after {
+        content: "";
+        position: absolute;
+        left: 0; right: 0; bottom: -6px;
+        height: 2px;
+        background: var(--orange);
+        border-radius: 2px;
+    }
+
+    a:focus-visible,
+    .btn:focus-visible,
+    .panel:focus-visible,
+    .scroll-cue:focus-visible {
+        outline: 2px solid var(--orange);
+        outline-offset: 3px;
+        border-radius: 6px;
+    }
+
+    .topbar-nav a.cta {
+        background: var(--navy);
+        color: #fff;
+        padding: 9px 18px;
+        border-radius: 8px;
+        opacity: 1;
+    }
+
+    .topbar-nav a.cta:hover { background: #16305a; color: #fff; }
+
+    @media (max-width: 760px) {
+        .topbar-nav a:not(.cta) { display: none; }
+    }
+
+    /* ---------- shared section scaffolding ---------- */
+    .screen {
+        position: relative;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 120px 6vw 60px;
+        scroll-snap-align: start;
+    }
+
+    .screen-inner { width: 100%; max-width: 1240px; }
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(22px);
+        transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+    @media (prefers-reduced-motion: reduce) {
+        .reveal { opacity: 1; transform: none; transition: none; }
+        html { scroll-behavior: auto; }
+    }
+
+    /* ---------- hero ---------- */
+    .hero-grid {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        align-items: center;
+        gap: 48px;
+    }
+
+    @media (max-width: 900px) {
+        .hero-grid { grid-template-columns: 1fr; text-align: center; }
+    }
+
+    .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.74rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--orange);
+        margin-bottom: 18px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .eyebrow::before { content: ""; width: 24px; height: 1px; background: var(--orange); opacity: 0.6; }
+
+    @media (max-width: 900px) {
+        .eyebrow { justify-content: center; }
+    }
+
+    .hero-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: clamp(2.3rem, 5vw, 3.4rem);
+        color: var(--navy);
+        letter-spacing: -0.015em;
+        line-height: 1.08;
+        margin-bottom: 20px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.05rem;
+        color: var(--muted);
+        max-width: 480px;
+        line-height: 1.65;
+        margin-bottom: 34px;
+    }
+
+    @media (max-width: 900px) {
+        .hero-subtitle { margin-left: auto; margin-right: auto; }
+    }
+
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .hero-trust {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .hero-trust span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+    }
+
+    .hero-trust svg { width: 13px; height: 13px; color: var(--navy); }
+
+    @media (max-width: 900px) { .hero-trust { justify-content: center; } }
+
+    @media (max-width: 900px) { .hero-ctas { justify-content: center; } }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 15px 26px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.18s ease;
+        border: 1px solid transparent;
+    }
+
+    .btn-solid { background: var(--navy); color: #fff; box-shadow: 0 10px 26px -10px rgba(28, 59, 107, 0.55); }
+    .btn-solid:hover { background: #16305a; color: #fff; transform: translateY(-1px); }
+
+    .btn-outline { background: transparent; color: var(--navy); border-color: rgba(28, 59, 107, 0.28); }
+    .btn-outline:hover { border-color: var(--orange); color: #b45f0f; background: var(--orange-soft); }
+
+    .hero-visual {
+        position: relative;
+        border-radius: 22px;
+        overflow: hidden;
+        aspect-ratio: 16 / 12;
+    }
+
+    .hero-visual::before {
+        content: "";
+        position: absolute;
+        inset: -16%;
+        background: radial-gradient(circle at 55% 45%, rgba(242, 129, 28, 0.22), transparent 62%);
+        z-index: 1;
+    }
+
+    .hero-visual img { position: relative; z-index: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .scroll-cue {
+        position: absolute;
+        bottom: 34px; left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        color: var(--mono-dim);
+        text-decoration: none;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .scroll-cue svg { width: 18px; height: 18px; animation: bob 1.8s ease-in-out infinite; }
+
+    @keyframes bob {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(6px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .scroll-cue svg { animation: none; }
+    }
+
+    /* ---------- access split panels ---------- */
+    .panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+        min-height: 100vh;
+    }
+
+    @media (max-width: 860px) {
+        .panels { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 60px 8vw;
+        text-decoration: none;
+        color: var(--text);
+        transition: background 0.25s ease;
+        min-height: 60vh;
+    }
+
+    .panel--a { background: var(--navy-soft); }
+    .panel--b { background: var(--orange-soft); }
+
+    .panel--a:hover { background: #e2ecfa; }
+    .panel--b:hover { background: #fdead1; }
+
+    .panel-tag {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 22px;
+    }
+
+    .panel--a .panel-tag { color: var(--navy); }
+    .panel--b .panel-tag { color: #b45f0f; }
+
+    .panel-icon {
+        width: 52px;
+        height: 52px;
+        margin-bottom: 20px;
+        transition: transform 0.25s ease;
+    }
+
+    .panel:hover .panel-icon { transform: translateY(-4px); }
+
+    .panel--a .panel-icon { color: var(--navy); }
+    .panel--b .panel-icon { color: var(--orange); }
+
+    .panel-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.7rem;
+        color: var(--text);
+        margin-bottom: 12px;
+    }
+
+    .panel-desc {
+        font-size: 0.95rem;
+        color: var(--muted);
+        max-width: 340px;
+        line-height: 1.6;
+        margin-bottom: 22px;
+    }
+
+    .panel-scope {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .panel-scope li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.86rem;
+        color: #3d4a5c;
+    }
+
+    .panel-scope svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .panel--a .panel-scope svg { color: var(--navy); }
+    .panel--b .panel-scope svg { color: var(--orange); }
+
+    .panel-scope li.is-locked {
+        color: var(--mono-dim);
+        text-decoration: line-through;
+        text-decoration-color: rgba(154, 167, 189, 0.7);
+    }
+
+    .panel-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 24px;
+        border-radius: 9px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .panel--a .panel-cta { background: var(--navy); color: #fff; }
+    .panel--b .panel-cta { background: #fff; color: var(--navy); border: 1px solid rgba(28,59,107,0.18); }
+
+    /* ---------- trust band ---------- */
+    .trust-row {
+        display: flex;
+        justify-content: center;
+        gap: 0;
+        width: 100%;
+    }
+
+    @media (max-width: 860px) {
+        .trust-row { flex-direction: column; gap: 36px; }
+    }
+
+    .trust-col {
+        flex: 1;
+        text-align: center;
+        padding: 0 34px;
+        position: relative;
+    }
+
+    .trust-col + .trust-col::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 8px; bottom: 8px;
+        width: 1px;
+        background: var(--line);
+    }
+
+    @media (max-width: 860px) {
+        .trust-col + .trust-col::before { display: none; }
+    }
+
+    .trust-col svg { width: 30px; height: 30px; color: var(--navy); margin-bottom: 16px; }
+
+    .trust-col h3 {
+        font-family: var(--font-display);
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 0 0 8px;
+    }
+
+    .trust-col p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin: 0; max-width: 300px; margin-inline: auto; }
+
+    .section-heading {
+        text-align: center;
+        margin-bottom: 56px;
+    }
+
+    .section-heading h2 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: clamp(1.6rem, 3vw, 2.1rem);
+        color: var(--navy);
+        margin: 8px 0 0;
+    }
+
+    /* ---------- about / contact band ---------- */
+    .about-screen { background: var(--navy); color: #fff; }
+
+    .about-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 60px;
+        align-items: start;
+    }
+
+    @media (max-width: 860px) {
+        .about-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+
+    .about-screen .eyebrow { color: var(--orange); }
+    .about-screen .eyebrow::before { background: var(--orange); }
+
+    .about-grid h2 {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: clamp(1.7rem, 3.4vw, 2.3rem);
+        margin: 0 0 16px;
+    }
+
+    .about-grid p {
+        font-size: 0.95rem;
+        line-height: 1.75;
+        color: rgba(255, 255, 255, 0.78);
+    }
+
+    .contact-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 18px; }
+
+    .contact-list li { display: flex; gap: 14px; align-items: flex-start; }
+
+    .contact-list svg { width: 18px; height: 18px; color: var(--orange); flex-shrink: 0; margin-top: 2px; }
+
+    .contact-list span { font-size: 0.92rem; line-height: 1.5; color: rgba(255,255,255,0.9); }
+
+    .contact-list a { color: #fff; font-weight: 600; text-decoration: none; }
+    .contact-list a:hover { text-decoration: underline; }
+
+    /* ---------- footer tags ---------- */
+    .foot-tags {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding: 26px 6vw 34px;
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        color: var(--mono-dim);
+        text-transform: uppercase;
+        background: var(--bg);
+    }
+
+    .foot-tags::before {
+        content: "";
+        position: absolute;
+        top: -28px; left: 0; right: 0;
+        height: 28px;
+        background: linear-gradient(180deg, var(--navy), var(--bg));
+    }
+
+    .foot-tags span { white-space: nowrap; }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
-    <div class="error-box">
-        <div class="error-body text-center">
-            <img src="/static/assets/images/icon/logo2.png" alt="E Market Solutions" style="max-height: 60px; object-fit: contain; margin-bottom: 25px;" />
-            <h3 class="text-uppercase error-subtitle">Diagnostic Spam</h3>
-            <p class="text-muted mt-2 mb-4">Choisissez comment vous souhaitez accéder à l'application.</p>
+<div class="site">
 
-            <div class="row justify-content-center">
-                <div class="col-md-5 mb-3">
-                    <a href="{{ url_for('home_blueprint.login_page') }}"
-                       class="btn btn-primary btn-rounded btn-block waves-effect waves-light">
-                        Se connecter avec Google
-                    </a>
-                    <p class="text-muted mt-2" style="font-size: 0.85rem;">
-                        Accès complet : Mes emails, Collecte, Analyse heuristique, Simulateur, Historique, Statistiques, Glossaire
-                    </p>
+    <nav class="topbar" id="topbar">
+        <img src="/static/assets/images/icon/logo2.png" alt="E Market Solutions" class="topbar-logo" />
+        <div class="topbar-nav">
+            <a href="#acces">Accès</a>
+            <a href="#confiance">Confiance</a>
+            <a href="#apropos">À propos</a>
+            <a href="#acces" class="cta">Commencer</a>
+        </div>
+    </nav>
+
+    <section class="screen" id="hero">
+        <div class="screen-inner hero-grid">
+            <div class="reveal">
+                <div class="eyebrow">Système de diagnostic spam</div>
+                <h1 class="hero-title">Choisissez votre niveau d'accès</h1>
+                <p class="hero-subtitle">Deux façons d'utiliser l'outil de diagnostic, selon si vous souhaitez lier votre compte Gmail ou tester rapidement sans connexion.</p>
+                <div class="hero-ctas">
+                    <a href="{{ url_for('home_blueprint.login_page') }}" class="btn btn-solid">Se connecter avec Google</a>
+                    <a href="{{ url_for('home_blueprint.simulateur_page') }}" class="btn btn-outline">Accéder sans connexion</a>
                 </div>
+                <div class="hero-trust">
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke-linecap="round"/></svg>Lecture seule</span>
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l7 3v5c0 4.6-3 8.5-7 10-4-1.5-7-5.4-7-10V6l7-3z"/></svg>OAuth2 officiel Google</span>
+                </div>
+            </div>
+            <div class="hero-visual reveal">
+                <img src="/static/assets/images/landingpagelogo.jpg" alt="" />
+            </div>
+        </div>
+        <a href="#acces" class="scroll-cue">
+            Découvrir
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+    </section>
 
-                <div class="col-md-5 mb-3">
-                    <a href="{{ url_for('home_blueprint.simulateur_page') }}"
-                       class="btn btn-outline-secondary btn-rounded btn-block waves-effect waves-light">
-                        Accéder sans connexion
-                    </a>
-                    <p class="text-muted mt-2" style="font-size: 0.85rem;">
-                        Accès limité : Simulateur, Historique, Statistiques, Glossaire
-                    </p>
+    <section id="acces" style="scroll-snap-align:start;">
+        <div class="panels">
+            <a href="{{ url_for('home_blueprint.login_page') }}" class="panel panel--a reveal">
+                <span class="panel-tag">Accès &middot; Niveau 1 &middot; Authentifié</span>
+                <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 3l7 3v5c0 4.6-3 8.5-7 10-4-1.5-7-5.4-7-10V6l7-3z"/>
+                    <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h2 class="panel-title">Connexion Google</h2>
+                <p class="panel-desc">Lie votre boîte Gmail pour collecter et analyser vos propres emails.</p>
+                <ul class="panel-scope">
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>Mes emails &amp; collecte Gmail</li>
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>Analyse heuristique (SPF / DKIM / DMARC)</li>
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>Simulateur, historique, statistiques, glossaire</li>
+                </ul>
+                <span class="panel-cta">Se connecter avec Google</span>
+            </a>
+
+            <a href="{{ url_for('home_blueprint.simulateur_page') }}" class="panel panel--b reveal">
+                <span class="panel-tag">Accès &middot; Niveau 2 &middot; Invité</span>
+                <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="3.2"/>
+                    <path d="M5 20c0-3.6 3.1-6.2 7-6.2s7 2.6 7 6.2" stroke-linecap="round"/>
+                </svg>
+                <h2 class="panel-title">Accéder sans connexion</h2>
+                <p class="panel-desc">Testez l'outil immédiatement, sans lier de compte Google.</p>
+                <ul class="panel-scope">
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>Simulateur, historique, statistiques, glossaire</li>
+                    <li class="is-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>Mes emails &amp; collecte Gmail</li>
+                    <li class="is-locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>Analyse heuristique des emails collectés</li>
+                </ul>
+                <span class="panel-cta">Accéder sans connexion</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="screen" id="confiance">
+        <div class="screen-inner">
+            <div class="section-heading reveal">
+                <div class="eyebrow" style="justify-content:center;">Sécurité</div>
+                <h2>Pourquoi nous faire confiance</h2>
+            </div>
+            <div class="trust-row reveal">
+                <div class="trust-col">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l7 3v5c0 4.6-3 8.5-7 10-4-1.5-7-5.4-7-10V6l7-3z"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <h3>Connexion officielle Google</h3>
+                    <p>L'authentification passe par le protocole OAuth2 de Google : nous ne voyons ni ne stockons jamais votre mot de passe.</p>
+                </div>
+                <div class="trust-col">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke-linecap="round"/></svg>
+                    <h3>Accès en lecture seule</h3>
+                    <p>Le scope demandé (gmail.readonly) permet uniquement de lire vos emails : aucune suppression, aucun envoi n'est possible.</p>
+                </div>
+                <div class="trust-col">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4" stroke-linecap="round"/></svg>
+                    <h3>Analyse IA 100% locale</h3>
+                    <p>Le diagnostic par intelligence artificielle s'exécute localement sur nos serveurs : vos emails ne sont jamais transmis à un service tiers.</p>
                 </div>
             </div>
         </div>
+    </section>
+
+    <section class="screen about-screen" id="apropos">
+        <div class="screen-inner about-grid">
+            <div class="reveal">
+                <div class="eyebrow">A propos de nous</div>
+                <h2>E Market Solutions</h2>
+                <p>Fondée à Fès en juin 2015, E Market Solutions (SARL) est un acteur reconnu de la publicité par e-mail et du marketing digital, au service d'annonceurs internationaux. Partie d'une équipe de moins de 10 collaborateurs, EMS compte aujourd'hui plus de 250 employés répartis sur 4 villes marocaines (Fès, Kénitra, Al Hoceima, Meknès).</p>
+            </div>
+            <ul class="contact-list reveal">
+                <li>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+                    <span>Rue Abbas Mahmoud Akkad, Hay Qods, Ville Nouvelle<br>Bureau Amin, 2ème et 3ème étage &mdash; 30000 Fès</span>
+                </li>
+                <li>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.7A2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .3 2 .7 3a2 2 0 01-.4 2.1L8 10.3a16 16 0 006 6l1.5-1.4a2 2 0 012.1-.4c1 .4 2 .6 3 .7a2 2 0 011.7 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span><a href="tel:0535931969">05 35 93 19 69</a></span>
+                </li>
+                <li>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span><a href="mailto:emscontact1@gmail.com">emscontact1@gmail.com</a></span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <div class="foot-tags">
+        <span>SPF</span><span>&middot;</span><span>DKIM</span><span>&middot;</span><span>DMARC</span><span>&middot;</span><span>IA locale (Ollama)</span>
     </div>
+</div>
 {% endblock content %}
 
 {% block javascripts %}
-    <script>
-        $(".preloader").fadeOut();
-    </script>
+<script>
+    $(".preloader").fadeOut();
+
+    // Topbar shadow on scroll
+    const topbar = document.getElementById('topbar');
+    window.addEventListener('scroll', function () {
+        if (window.scrollY > 12) { topbar.classList.add('is-scrolled'); }
+        else { topbar.classList.remove('is-scrolled'); }
+    });
+
+    // Reveal-on-scroll animations
+    const revealEls = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        revealEls.forEach((el) => observer.observe(el));
+    } else {
+        revealEls.forEach((el) => el.classList.add('is-visible'));
+    }
+
+    // Scrollspy: highlight the nav link matching the section in view
+    const navLinks = document.querySelectorAll('.topbar-nav a:not(.cta)');
+    const spySections = ['hero', 'acces', 'confiance', 'apropos']
+        .map((id) => document.getElementById(id))
+        .filter(Boolean);
+
+    if ('IntersectionObserver' in window && spySections.length) {
+        const spyObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    navLinks.forEach((link) => {
+                        const matches = link.getAttribute('href') === '#' + id;
+                        link.classList.toggle('is-active', matches);
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+        spySections.forEach((section) => spyObserver.observe(section));
+    }
+</script>
 {% endblock javascripts %}
